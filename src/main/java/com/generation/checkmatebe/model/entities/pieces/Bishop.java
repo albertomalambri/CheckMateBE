@@ -17,8 +17,7 @@ public class Bishop extends Piece
     private Long id;
 
     @Override
-    public List<Position> calcolaMossePossibili()
-    {
+    public List<Position> calcolaMossePossibili(Position position) {
         return List.of();
     }
 

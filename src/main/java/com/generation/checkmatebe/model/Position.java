@@ -1,5 +1,13 @@
 package com.generation.checkmatebe.model;
 
+import com.generation.checkmatebe.enums.Color;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class Position
 {
     private final int row;     // da 1 a 8
