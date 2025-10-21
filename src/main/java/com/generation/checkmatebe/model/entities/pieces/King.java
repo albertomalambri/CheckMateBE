@@ -1,6 +1,7 @@
 package com.generation.checkmatebe.model.entities.pieces;
 
-import com.generation.checkmatebe.model.Position;
+import com.generation.checkmatebe.model.entities.Casella;
+import com.generation.checkmatebe.utilities.ChessUtils;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.Getter;
@@ -11,24 +12,45 @@ import java.util.List;
 
 @Getter
 @Setter
-@Entity
+
 public class King extends Piece
 {
-    @Id
-    private Long id;
 
     @Override
-    public List<Position> calcolaMossePossibili(Position position) {
-        List<Position> pos = new ArrayList<>();
-        pos.add(new Position(position.getRow()+1,position.getColumn()));
-        pos.add(new Position(position.getRow()-1,position.getColumn()));
-        pos.add(new Position(position.getRow(),position.getColumn()+1));
-        pos.add(new Position(position.getRow(),position.getColumn()-1));
-        pos.add(new Position(position.getRow()+1,position.getColumn()-1));
-        pos.add(new Position(position.getRow()+1,position.getColumn()+1));
-        pos.add(new Position(position.getRow()-1,position.getColumn()+1));
-        pos.add(new Position(position.getRow()-1,position.getColumn()+1));
+    public void setPosizione(Casella posizione) {
+        if (posizione.getPezzo()==null)
+            posizione.setPezzo(this);
+        super.setPosizione(posizione);
+    }
 
+    private boolean giaMosso = false;
+
+    @Override
+    public List<Casella> calcolaMossePossibili(Casella casella) {
+
+        int row = Integer.parseInt(""+casella.getNomeCasella().charAt(1));
+        int column = ChessUtils.getColumnIndex(casella.getNomeCasella().charAt(0));
+        List<Casella> pos = new ArrayList<>();
+        pos.add(new Casella(row+1, column));
+        pos.add(new Casella(row-1, column));
+        pos.add(new Casella(row, column+1));
+        pos.add(new Casella(row, column-1));
+        pos.add(new Casella(row+1, column-1));
+        pos.add(new Casella(row+1, column+1));
+        pos.add(new Casella(row-1, column+1));
+        pos.add(new Casella(row-1, column+1));
+
+        if(!this.giaMosso) {
+            if (row == 0 && column == 4) {
+                pos.add(new Casella(0, 6));
+                pos.add(new Casella(0, 2));
+            }
+            if (row == 7 && column == 4) {
+                pos.add(new Casella(7, 6));
+                pos.add(new Casella(7, 2));
+            }
+        }
+        pos.removeIf(positions -> column < 0 || column > 7 || row < 0 || row > 7);
         return pos;
     }
 

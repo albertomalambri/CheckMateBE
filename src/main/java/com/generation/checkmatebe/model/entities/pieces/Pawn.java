@@ -1,7 +1,8 @@
 package com.generation.checkmatebe.model.entities.pieces;
 
-import com.generation.checkmatebe.enums.Color;
-import com.generation.checkmatebe.model.Position;
+import com.generation.checkmatebe.model.enums.Color;
+import com.generation.checkmatebe.model.entities.Casella;
+import com.generation.checkmatebe.utilities.ChessUtils;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,32 +18,39 @@ import java.util.List;
 @AllArgsConstructor
 public class Pawn extends Piece
 {
-    @Id
-    private Long id;
-
-
 
     @Override
-    public List<Position> calcolaMossePossibili(Position position)
+    public void setPosizione(Casella posizione) {
+        if (posizione.getPezzo()==null)
+            posizione.setPezzo(this);
+        super.setPosizione(posizione);
+    }
+
+    @Override
+    public List<Casella> calcolaMossePossibili(Casella casella)
     {
-        List<Position> pos = new ArrayList<>();
+
+        int row = Integer.parseInt(""+casella.getNomeCasella().charAt(1));
+        int column = ChessUtils.getColumnIndex(casella.getNomeCasella().charAt(0));
+        List<Casella> pos = new ArrayList<>();
         if (this.getColor().equals(Color.BIANCO)) {
-            if (position.getRow()!=1)
-                pos.add(new Position(position.getRow() + 1, position.getColumn()));
+            if (row!=1)
+                pos.add(new Casella(row + 1, column));
             else {
-                pos.add(new Position(position.getRow() + 1, position.getColumn()));
-                pos.add(new Position(position.getRow() + 2, position.getColumn()));
+                pos.add(new Casella(row + 1, column));
+                pos.add(new Casella(row + 2, column));
             }
         }
         else if (this.getColor().equals(Color.NERO)) {
-            if (position.getRow()!=6)
-                pos.add(new Position(position.getRow() - 1, position.getColumn()));
+            if (row!=6)
+                pos.add(new Casella(row - 1, column));
 
             else {
-                pos.add(new Position(position.getRow() - 1, position.getColumn()));
-                pos.add(new Position(position.getRow() - 2, position.getColumn()));
+                pos.add(new Casella(row - 1, column));
+                pos.add(new Casella(row - 2, column));
             }
         }
+        pos.removeIf(positions -> column < 0 || column > 7 || row < 0 || row > 7);
         return pos;
     }
 

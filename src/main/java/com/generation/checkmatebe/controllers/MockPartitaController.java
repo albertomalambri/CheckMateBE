@@ -3,8 +3,10 @@ package com.generation.checkmatebe.controllers;
 //commento
 import com.generation.checkmatebe.dtos.MossaDTO;
 import com.generation.checkmatebe.dtos.PartitaDTO;
+import com.generation.checkmatebe.dtos.PieceDTO;
 import com.generation.checkmatebe.model.entities.ScacchieraGamestate;
 import com.generation.checkmatebe.services.GameEngine;
+import com.generation.checkmatebe.utilities.ChessUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/mock")
@@ -41,7 +44,18 @@ public class MockPartitaController {
 
     @PostMapping("/start")
     public ResponseEntity<ScacchieraGamestate> startGame() {
-        return ResponseEntity.ok(gameEngine.inizializzazioneGamestate());
+        return ResponseEntity.ok(gameEngine.inizializzaGamestate());
     }
 }
+
+//    @GetMapping("/pezzi")
+//    public ResponseEntity<List<PieceDTO>> getPezziCorrenti()
+//    {
+//        ScacchieraGamestate stato = gameEngine.inizializzaGamestate(); //scacchiera a inizio partita
+//        List<PieceDTO> pezzi = stato.getPezzi().stream()
+//                .map(ChessUtils::converti)
+//                .collect(Collectors.toList());
+//        return ResponseEntity.ok(pezzi);
+//    }
+//}
 

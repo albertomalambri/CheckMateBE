@@ -1,8 +1,8 @@
 package com.generation.checkmatebe.model.entities.pieces;
 
-import com.generation.checkmatebe.enums.Color;
-import com.generation.checkmatebe.enums.inGame;
-import com.generation.checkmatebe.model.Position;
+import com.generation.checkmatebe.model.enums.Color;
+import com.generation.checkmatebe.model.enums.inGame;
+import com.generation.checkmatebe.model.entities.Casella;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -19,9 +19,9 @@ public abstract class Piece
     @NotNull
     private inGame inGame;
 
-    protected Position posizione;  // classe custom con riga/colonna
+    protected Casella posizione;  // classe custom con riga/colonna
 
-    public abstract List<Position> calcolaMossePossibili(Position position);
+    public abstract List<Casella> calcolaMossePossibili(Casella casella);
 
     public abstract boolean canEat(Piece other);
 

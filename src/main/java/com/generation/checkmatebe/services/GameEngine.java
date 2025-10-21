@@ -1,11 +1,11 @@
 package com.generation.checkmatebe.services;
 
-import com.generation.checkmatebe.enums.Color;
-import com.generation.checkmatebe.enums.inGame;
-import com.generation.checkmatebe.model.Position;
+import com.generation.checkmatebe.model.enums.Color;
+import com.generation.checkmatebe.model.enums.inGame;
 import com.generation.checkmatebe.model.entities.Casella;
 import com.generation.checkmatebe.model.entities.ScacchieraGamestate;
 import com.generation.checkmatebe.model.entities.pieces.*;
+import com.generation.checkmatebe.utilities.ChessUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -14,72 +14,63 @@ import java.util.List;
 @Service
 public class GameEngine
 {
-    private List<String> colonne = List.of("a", "b", "c", "d","e","f","g","h");
-    public ScacchieraGamestate inizializzazioneGamestate()
+
+    public ScacchieraGamestate inizializzaGamestate()
     {
         ScacchieraGamestate scacchiera = new ScacchieraGamestate();
-        List<Piece> pezzi = new ArrayList<>();
-        List<Casella> caselle = new ArrayList<>();
-        for (String column : colonne) {
-            for (int i = 0; i < 8; i++) {
-                Casella casella = new Casella();
-                casella.setPosition(new Position(i,colonne.indexOf(column)));
-                casella.setColor(controllaColoreCasella(colonne.indexOf(column),i));
-                caselle.add(casella);
+        Casella[][] caselle = new Casella[8][8];
+        for (int i = 0; i < 8; i++) { //righe
+            for (int j = 0; j < 8; j++) { //colonne
+                Casella casella = new Casella(i,j);
+                casella.setColor(controllaColoreCasella(j,i));
+                caselle[i][j]=casella;
 
                 if (i<=1 || i>=6) {
                     if (i==1 || i==6) {
                         Pawn pedone = new Pawn();
                         pedone.setInGame(inGame.YES);
-                        pedone.setPosizione(new Position(i,colonne.indexOf(column)));
+                        pedone.setPosizione(casella);
                         pedone.setColor(controlloColorePezzo(i));
-                        pezzi.add(pedone);
                     }
                     else {
-                        switch (column) {
+                        switch (""+ChessUtils.positionToString(i,j).charAt(0)) {
                             case "a", "h" -> {
                                 Rook rook = new Rook();
                                 rook.setInGame(inGame.YES);
-                                rook.setPosizione(new Position(i,colonne.indexOf(column)));
+                                rook.setPosizione(casella);
                                 rook.setColor(controlloColorePezzo(i));
-                                pezzi.add(rook);
                             }
                             case "b","g" -> {
                                 Knight knight = new Knight();
                                 knight.setInGame(inGame.YES);
-                                knight.setPosizione(new Position(i,colonne.indexOf(column)));
+                                knight.setPosizione(casella);
                                 knight.setColor(controlloColorePezzo(i));
-                                pezzi.add(knight);
                             }
                             case "c","f" -> {
                                 Bishop bishop = new Bishop();
                                 bishop.setInGame(inGame.YES);
-                                bishop.setPosizione(new Position(i,colonne.indexOf(column)));
+                                bishop.setPosizione(casella);
                                 bishop.setColor(controlloColorePezzo(i));
-                                pezzi.add(bishop);
                             }
                             case "d" -> {
                                 Queen queen = new Queen();
                                 queen.setInGame(inGame.YES);
-                                queen.setPosizione(new Position(i,colonne.indexOf(column)));
+                                queen.setPosizione(casella);
                                 queen.setColor(controlloColorePezzo(i));
-                                pezzi.add(queen);
                             }
                             case "e" -> {
                                 King king = new King();
                                 king.setInGame(inGame.YES);
-                                king.setPosizione(new Position(i,colonne.indexOf(column)));
+                                king.setPosizione(casella);
                                 king.setColor(controlloColorePezzo(i));
-                                pezzi.add(king);
                             }
                         }
                     }
                 }
             }
         }
-        scacchiera.setCaselle(caselle);
-        scacchiera.setPezzi(pezzi);
-        scacchiera.refreshPosizioni();
+        scacchiera.setScacchiera(caselle);
+
         return scacchiera;
     }
 
