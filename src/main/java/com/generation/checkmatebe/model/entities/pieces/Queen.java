@@ -6,6 +6,7 @@ import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -19,12 +20,19 @@ public class Queen extends Piece
 
     @Override
     public List<Position> calcolaMossePossibili(Position position) {
-        return List.of();
+        List<Position> pos = new ArrayList<>();
+        for (int i = 1; i < 8; i++) {
+            pos.add(new Position(position.getRow()+i,position.getColumn()));
+            pos.add(new Position(position.getRow()-i,position.getColumn()));
+            pos.add(new Position(position.getRow(),position.getColumn()+i));
+            pos.add(new Position(position.getRow(),position.getColumn()-i));
+        }
+        return pos;
     }
 
     @Override
     public boolean canEat(Piece other)
     {
-        return false;
+        return this.getColor()!=other.getColor();
     }
 }

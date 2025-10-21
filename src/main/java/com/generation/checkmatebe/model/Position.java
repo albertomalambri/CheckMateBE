@@ -22,15 +22,15 @@ public class Position
 
     //Delta sta per variazione o spostamento
 
-    public Position avanti(int delta)
-    {
-        return new Position(row + delta, column);
-    }
-
-    public Position diagonale(int deltaRow, int deltaColumn)
-    {
-        return new Position(row + deltaRow, column + deltaColumn);
-    }
+//    public Position avanti(int delta)
+//    {
+//        return new Position(row + delta, column);
+//    }
+//
+//    public Position diagonale(int deltaRow, int deltaColumn)
+//    {
+//        return new Position(row + deltaRow, column + deltaColumn);
+//    }
 
     // equals, hashCode, toString...
 }

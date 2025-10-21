@@ -49,7 +49,7 @@ public class Pawn extends Piece
     @Override
     public boolean canEat(Piece other)
     {
-        return false;
+        return this.getColor()!=other.getColor();
     }
 }
 

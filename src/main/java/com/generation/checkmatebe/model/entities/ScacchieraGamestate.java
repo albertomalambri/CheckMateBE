@@ -1,14 +1,14 @@
 package com.generation.checkmatebe.model.entities;
 
 import com.generation.checkmatebe.enums.Color;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.generation.checkmatebe.model.Position;
+import com.generation.checkmatebe.model.entities.pieces.*;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -19,8 +19,30 @@ public class ScacchieraGamestate
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private List<String> piecesPosition;
+
+    private List<Position> piecesPosition;
+
+
     @NotNull
-    private Color currentPlayer;
+    @Enumerated(EnumType.STRING)
+    private Color currentPlayer = Color.BIANCO; // Bianco comincia
+
+
     private List<String> previousMoves;
+
+
+    private List<Casella> caselle;
+
+
+    private List<Piece> pezzi;
+
+
+
+    public void refreshPosizioni() {
+        List<Position> posizioni = new ArrayList<>();
+        for (Piece p : pezzi) {
+            posizioni.add(p.getPosizione());
+        }
+        this.piecesPosition = posizioni;
+    }
 }

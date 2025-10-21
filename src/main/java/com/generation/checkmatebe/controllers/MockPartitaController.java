@@ -3,8 +3,12 @@ package com.generation.checkmatebe.controllers;
 //commento
 import com.generation.checkmatebe.dtos.MossaDTO;
 import com.generation.checkmatebe.dtos.PartitaDTO;
+import com.generation.checkmatebe.model.entities.ScacchieraGamestate;
+import com.generation.checkmatebe.services.GameEngine;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,6 +18,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/mock")
 public class MockPartitaController {
+
+    @Autowired
+    GameEngine gameEngine;
 
     @GetMapping("/partita")
     public ResponseEntity<PartitaDTO> getMockPartita() {
@@ -30,6 +37,11 @@ public class MockPartitaController {
         partita.setMosse(mosse);
 
         return ResponseEntity.ok(partita);
+    }
+
+    @PostMapping("/start")
+    public ResponseEntity<ScacchieraGamestate> startGame() {
+        return ResponseEntity.ok(gameEngine.inizializzazioneGamestate());
     }
 }
 
