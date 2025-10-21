@@ -2,6 +2,8 @@ package com.generation.checkmatebe.model.entities;
 
 import com.generation.checkmatebe.enums.Color;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -15,6 +17,7 @@ import java.util.List;
 public class ScacchieraGamestate
 {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private List<String> piecesPosition;
     @NotNull
