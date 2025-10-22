@@ -1,11 +1,15 @@
 package com.generation.checkmatebe.services;
 
+import com.generation.checkmatebe.dtos.MossaDTO;
+import com.generation.checkmatebe.dtos.PieceDTO;
 import com.generation.checkmatebe.model.enums.Color;
 import com.generation.checkmatebe.model.enums.inGame;
 import com.generation.checkmatebe.model.entities.Casella;
 import com.generation.checkmatebe.model.entities.ScacchieraGamestate;
 import com.generation.checkmatebe.model.entities.pieces.*;
+import com.generation.checkmatebe.model.repositories.ScacchieraRepository;
 import com.generation.checkmatebe.utilities.ChessUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -14,6 +18,8 @@ import java.util.List;
 @Service
 public class GameEngine
 {
+    @Autowired
+    ScacchieraRepository repo;
 
     public ScacchieraGamestate inizializzaGamestate()
     {
@@ -23,6 +29,7 @@ public class GameEngine
             for (int j = 0; j < 8; j++) { //colonne
                 Casella casella = new Casella(i,j);
                 casella.setColor(controllaColoreCasella(j,i));
+                casella.setGameState(scacchiera);
                 caselle[i][j]=casella;
 
                 if (i<=1 || i>=6) {
@@ -96,6 +103,30 @@ public class GameEngine
         }
     }
 
+    public List<PieceDTO> findAllAsDto(Long id) {
+        Casella[][] scacchiera = repo.getReferenceById(id).getScacchiera();
+        List<PieceDTO> tuttiDto = new ArrayList<>();
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if(scacchiera[i][j].getPezzo()!=null) {
+                    List<String> pos = new ArrayList<>();
+                    PieceDTO piece = new PieceDTO();
+                    piece.setPosizione(scacchiera[i][j].getNomeCasella());
+                    if(scacchiera[i][j].getPezzo().getColor()==repo.getReferenceById(id).getCurrentPlayer()) {
+                        for (Casella c : scacchiera[i][j].getPezzo().calcolaMossePossibili())
+                            pos.add(ChessUtils.positionToString(c.getNomeCasella().charAt(0), c.getNomeCasella().charAt(1)));
+                        piece.setMossePossibili(pos);
+                    }
+                    else
+                        pos = null;
+                    tuttiDto.add(piece);
+                }
+            }
+
+        }
+        return tuttiDto;
+    }
+
 //    private Piece creaPezzoIniziale(int row, int col) {
 //        // pedoni
 //        if (row == 1)
@@ -118,10 +149,12 @@ public class GameEngine
 //        return null;
 //    }
 
-    public void secondoGamestate() //prende come input ScacchieraGamestate,Move
+    public PieceDTO secondoGamestate(Long id, MossaDTO dto) //prende come input ScacchieraGamestate,Move
     {
-
+        ScacchieraGamestate gameState = repo.getReferenceById(id);
+        gameState.cambioTurno();
         //pezzo viene mangiato?
         //mossa fattibile o non fattibile
+        return new PieceDTO();
     }
 }

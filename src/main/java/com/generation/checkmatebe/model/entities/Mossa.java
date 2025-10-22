@@ -6,8 +6,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Mossa {
-
+public class Mossa
+{
     private int numero;
     private String da; // "e2"
     private String a;  // "e4"

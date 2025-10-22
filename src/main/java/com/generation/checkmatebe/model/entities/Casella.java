@@ -18,6 +18,8 @@ public class Casella
     // da 1 a 8 (oppure 'a'–'h' se vuoi usare lettere)
     private String nomeCasella; //es e4
 
+    private ScacchieraGamestate gameState;
+
     @Enumerated(EnumType.STRING)
     private Color color;
 
@@ -35,6 +37,7 @@ public class Casella
             this.pezzo = pezzo;
         pezzo.setPosizione(this);
     }
+
 
     //Delta sta per variazione o spostamento
 

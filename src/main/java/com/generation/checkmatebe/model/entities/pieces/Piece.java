@@ -14,6 +14,7 @@ import java.util.List;
 @MappedSuperclass
 public abstract class Piece
 {
+    private boolean giaMosso = false;
     @NotNull
     private Color color;
     @NotNull
@@ -21,8 +22,10 @@ public abstract class Piece
 
     protected Casella posizione;  // classe custom con riga/colonna
 
-    public abstract List<Casella> calcolaMossePossibili(Casella casella);
+    public abstract List<Casella> calcolaMossePossibili();
 
     public abstract boolean canEat(Piece other);
+
+    public abstract String getNome();
 
 }

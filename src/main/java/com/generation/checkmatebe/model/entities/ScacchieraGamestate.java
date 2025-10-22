@@ -30,6 +30,13 @@ public class ScacchieraGamestate
     //private boolean live; //partita live o finita
 
 
+    public void cambioTurno() {
+        if (this.currentPlayer==Color.BIANCO)
+            this.currentPlayer=Color.NERO;
+        else
+            this.currentPlayer=Color.BIANCO;
+    }
+
 
 
 //    public void refreshPosizioni() {

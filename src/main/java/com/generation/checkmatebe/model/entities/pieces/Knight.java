@@ -24,20 +24,29 @@ public class Knight extends Piece
     }
 
     @Override
-    public List<Casella> calcolaMossePossibili(Casella casella) {
+    public List<Casella> calcolaMossePossibili() {
 
-        int row = Integer.parseInt(""+casella.getNomeCasella().charAt(1));
-        int column = ChessUtils.getColumnIndex(casella.getNomeCasella().charAt(0));
+        Casella[][] scacchiera = this.getPosizione().getGameState().getScacchiera();
+
+        int row = Integer.parseInt(""+this.getPosizione().getNomeCasella().charAt(1));
+        int column = ChessUtils.getColumnIndex(this.getPosizione().getNomeCasella().charAt(0));
         List<Casella> pos = new ArrayList<>();
-        pos.add(new Casella(row+2, column+1));
-        pos.add(new Casella(row+2, column-1));
-        pos.add(new Casella(row-2, column+1));
-        pos.add(new Casella(row-2, column-1));
-
-        pos.add(new Casella(row+1, column+2));
-        pos.add(new Casella(row-1, column+2));
-        pos.add(new Casella(row+1, column-2));
-        pos.add(new Casella(row-1, column-2));
+        if (scacchiera[row+2][column+1].getPezzo()==null || canEat(scacchiera[row+2][column+1].getPezzo()))
+            pos.add(new Casella(row+2, column+1));
+        if (scacchiera[row+2][column-1].getPezzo()==null || canEat(scacchiera[row+2][column-1].getPezzo()))
+            pos.add(new Casella(row+2, column-1));
+        if (scacchiera[row-2][column+1].getPezzo()==null || canEat(scacchiera[row-2][column+1].getPezzo()))
+            pos.add(new Casella(row-2, column+1));
+        if (scacchiera[row-2][column-1].getPezzo()==null || canEat(scacchiera[row-2][column-1].getPezzo()))
+            pos.add(new Casella(row-2, column-1));
+        if (scacchiera[row+1][column+2].getPezzo()==null || canEat(scacchiera[row+1][column+2].getPezzo()))
+            pos.add(new Casella(row+1, column+2));
+        if (scacchiera[row-1][column+2].getPezzo()==null || canEat(scacchiera[row-1][column+2].getPezzo()))
+            pos.add(new Casella(row-1, column+2));
+        if (scacchiera[row+1][column-2].getPezzo()==null || canEat(scacchiera[row+1][column-2].getPezzo()))
+            pos.add(new Casella(row+1, column-2));
+        if (scacchiera[row-1][column-2].getPezzo()==null || canEat(scacchiera[row-1][column-2].getPezzo()))
+            pos.add(new Casella(row-1, column-2));
 
         pos.removeIf(positions -> column < 0 || column > 7 || row < 0 || row > 7);
         return pos;
@@ -47,5 +56,10 @@ public class Knight extends Piece
     public boolean canEat(Piece other)
     {
         return this.getColor()!=other.getColor();
+    }
+
+    @Override
+    public String getNome() {
+        return "knight";
     }
 }

@@ -20,31 +20,33 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/mock")
-public class MockPartitaController {
-
+public class PartitaController
+{
     @Autowired
     GameEngine gameEngine;
 
-    @GetMapping("/partita")
-    public ResponseEntity<PartitaDTO> getMockPartita() {
-        PartitaDTO partita = new PartitaDTO();
-        partita.setId(1L);
-        partita.setGiocatoreBianco("Alberto");
-        partita.setGiocatoreNero("Stockfish");
-        partita.setRisultato("1-0");
-        partita.setStatoFinaleFEN("rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2");
-
-        List<MossaDTO> mosse = new ArrayList<>();
-        mosse.add(new MossaDTO(1, "e2", "e4", "pedone", false, false, false));
-        mosse.add(new MossaDTO(1, "c7", "c5", "pedone", false, false, false));
-        partita.setMosse(mosse);
-
-        return ResponseEntity.ok(partita);
-    }
+//    @GetMapping("/partita")
+//    public ResponseEntity<PartitaDTO> getMockPartita()
+//    {
+//        PartitaDTO partita = new PartitaDTO();
+//        partita.setId(1L);
+//        partita.setGiocatoreBianco("Alberto");
+//        partita.setGiocatoreNero("Stockfish");
+//        partita.setRisultato("1-0");
+//        partita.setStatoFinaleFEN("rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2");
+//
+//        List<MossaDTO> mosse = new ArrayList<>();
+//        mosse.add(new MossaDTO(1, "e2", "e4", "pedone", false, false, false));
+//        mosse.add(new MossaDTO(1, "c7", "c5", "pedone", false, false, false));
+//        partita.setMosse(mosse);
+//
+//        return ResponseEntity.ok(partita);
+//    }
 
     @PostMapping("/start")
-    public ResponseEntity<ScacchieraGamestate> startGame() {
-        return ResponseEntity.ok(gameEngine.inizializzaGamestate());
+    public List<PieceDTO> startGame()
+    {
+        return gameEngine.findAllAsDto(gameEngine.inizializzaGamestate().getId());
     }
 }
 
