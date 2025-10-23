@@ -29,7 +29,7 @@ public class Rook extends Piece
     public List<Casella> calcolaMossePossibili() {
 
         Casella[][] scacchiera = this.getPosizione().getGameState().getScacchiera();
-        int row = Integer.parseInt(""+this.getPosizione().getNomeCasella().charAt(1));
+        int row = Integer.parseInt(""+this.getPosizione().getNomeCasella().charAt(1))-1;
         int column = ChessUtils.getColumnIndex(this.getPosizione().getNomeCasella().charAt(0));
         List<Casella> pos = new ArrayList<>();
         boolean stop1 = true;
@@ -38,44 +38,48 @@ public class Rook extends Piece
         boolean stop4 = true;
         for (int i = 1; i < 8; i++) {
             if (stop1) {
-                if (scacchiera[row+i][column].getPezzo()==null)
-                    pos.add(new Casella(row + i, column));
-                else if (canEat(scacchiera[row+i][column].getPezzo())) {
-                    pos.add(new Casella(row + i, column));
-                    stop1=false;
+                if (row+i<8) {
+                    if (scacchiera[row + i][column].getPezzo() == null)
+                        pos.add(new Casella(row + i, column));
+                    else if (canEat(scacchiera[row + i][column].getPezzo())) {
+                        pos.add(new Casella(row + i, column));
+                        stop1 = false;
+                    } else
+                        stop1 = false;
                 }
-                else
-                    stop1=false;
             }
             if (stop2) {
-                if (scacchiera[row-i][column].getPezzo()==null)
-                    pos.add(new Casella(row-i, column));
-                else if (canEat(scacchiera[row-i][column].getPezzo())) {
-                    pos.add(new Casella(row-i, column));
-                    stop2=false;
+                if (row-i>=0) {
+                    if (scacchiera[row - i][column].getPezzo() == null)
+                        pos.add(new Casella(row - i, column));
+                    else if (canEat(scacchiera[row - i][column].getPezzo())) {
+                        pos.add(new Casella(row - i, column));
+                        stop2 = false;
+                    } else
+                        stop2 = false;
                 }
-                else
-                    stop2=false;
             }
             if (stop3) {
-                if (scacchiera[row][column+i].getPezzo()==null)
-                    pos.add(new Casella(row, column+i));
-                else if (canEat(scacchiera[row][column+i].getPezzo())) {
-                    pos.add(new Casella(row, column+i));
-                    stop3=false;
+                if (column+i<8) {
+                    if (scacchiera[row][column + i].getPezzo() == null)
+                        pos.add(new Casella(row, column + i));
+                    else if (canEat(scacchiera[row][column + i].getPezzo())) {
+                        pos.add(new Casella(row, column + i));
+                        stop3 = false;
+                    } else
+                        stop3 = false;
                 }
-                else
-                    stop3=false;
             }
             if (stop4) {
-                if (scacchiera[row][column-i].getPezzo()==null)
-                    pos.add(new Casella(row, column-i));
-                else if (canEat(scacchiera[row][column-i].getPezzo())) {
-                    pos.add(new Casella(row, column-i));
-                    stop4=false;
+                if (column-i>=0) {
+                    if (scacchiera[row][column - i].getPezzo() == null)
+                        pos.add(new Casella(row, column - i));
+                    else if (canEat(scacchiera[row][column - i].getPezzo())) {
+                        pos.add(new Casella(row, column - i));
+                        stop4 = false;
+                    } else
+                        stop4 = false;
                 }
-                else
-                    stop4=false;
             }
         }
         if(!this.isGiaMosso()) {
@@ -88,7 +92,6 @@ public class Rook extends Piece
             if (this.getColor()== Color.NERO && scacchiera[7][1].getPezzo()==null && scacchiera[7][2].getPezzo()==null && scacchiera[7][3].getPezzo()==null && scacchiera[7][4].getPezzo()!=null && !scacchiera[7][4].getPezzo().isGiaMosso())
                 pos.add(new Casella(7, 3));
         }
-        pos.removeIf(positions -> column < 0 || column > 7 || row < 0 || row > 7);
         return pos;
     }
 

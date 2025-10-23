@@ -19,6 +19,7 @@ public class ScacchieraGamestate
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Transient
     private Casella[][] scacchiera= new Casella[8][8];
 
     @NotNull

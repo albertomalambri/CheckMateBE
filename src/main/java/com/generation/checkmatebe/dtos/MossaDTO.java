@@ -12,7 +12,7 @@ import lombok.Setter;
 // MossaDTO.java
 public class MossaDTO
 {
-    private int numero;
+    private int turno;
     private String da; // "e2"
     private String a;  // "e4"
     private String pezzo; // "pedone", "cavallo", ecc.

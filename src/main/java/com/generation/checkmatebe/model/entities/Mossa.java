@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 public class Mossa
 {
-    private int numero;
+    private int turno;
     private String da; // "e2"
     private String a;  // "e4"
     private Piece pezzo; // "pedone", "cavallo", ecc. //ho modificato il tipo in Piece tj

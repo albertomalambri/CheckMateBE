@@ -38,6 +38,10 @@ public class Casella
         pezzo.setPosizione(this);
     }
 
+    public void svuotaCasella() {
+        this.pezzo = null;
+    }
+
 
     //Delta sta per variazione o spostamento
 

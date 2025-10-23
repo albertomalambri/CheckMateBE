@@ -28,24 +28,24 @@ public class King extends Piece
     public List<Casella> calcolaMossePossibili()
     {
         Casella[][] scacchiera = this.getPosizione().getGameState().getScacchiera();
-        int row = Integer.parseInt(""+this.getPosizione().getNomeCasella().charAt(1));
+        int row = Integer.parseInt(""+this.getPosizione().getNomeCasella().charAt(1))-1;
         int column = ChessUtils.getColumnIndex(this.getPosizione().getNomeCasella().charAt(0));
         List<Casella> pos = new ArrayList<>();
-        if (scacchiera[row+1][column].getPezzo()==null || canEat(scacchiera[row+1][column].getPezzo()))
+        if (row+1<8 && (scacchiera[row+1][column].getPezzo()==null || canEat(scacchiera[row+1][column].getPezzo())))
             pos.add(new Casella(row+1, column));
-        if (scacchiera[row-1][column].getPezzo()==null || canEat(scacchiera[row-1][column].getPezzo()))
+        if (row-1>=0 && (scacchiera[row-1][column].getPezzo()==null || canEat(scacchiera[row-1][column].getPezzo())))
             pos.add(new Casella(row-1, column));
-        if (scacchiera[row][column+1].getPezzo()==null || canEat(scacchiera[row][column+1].getPezzo()))
+        if (column+1<8 && (scacchiera[row][column+1].getPezzo()==null || canEat(scacchiera[row][column+1].getPezzo())))
             pos.add(new Casella(row, column+1));
-        if (scacchiera[row][column-1].getPezzo()==null || canEat(scacchiera[row][column-1].getPezzo()))
+        if (column-1>=0 && (scacchiera[row][column-1].getPezzo()==null || canEat(scacchiera[row][column-1].getPezzo())))
             pos.add(new Casella(row, column-1));
-        if (scacchiera[row+1][column-1].getPezzo()==null || canEat(scacchiera[row+1][column-1].getPezzo()))
+        if (row+1<8 && column-1>=0 && (scacchiera[row+1][column-1].getPezzo()==null || canEat(scacchiera[row+1][column-1].getPezzo())))
             pos.add(new Casella(row+1, column-1));
-        if (scacchiera[row+1][column+1].getPezzo()==null || canEat(scacchiera[row+1][column+1].getPezzo()))
+        if (row+1<8 && column+1<8 && (scacchiera[row+1][column+1].getPezzo()==null || canEat(scacchiera[row+1][column+1].getPezzo())))
             pos.add(new Casella(row+1, column+1));
-        if (scacchiera[row-1][column+1].getPezzo()==null || canEat(scacchiera[row-1][column+1].getPezzo()))
+        if (row-1>=0 && column+1<8 && (scacchiera[row-1][column+1].getPezzo()==null || canEat(scacchiera[row-1][column+1].getPezzo())))
             pos.add(new Casella(row-1, column+1));
-        if (scacchiera[row-1][column-1].getPezzo()==null || canEat(scacchiera[row-1][column-1].getPezzo()))
+        if (row-1>=0 && column-1>=0 && (scacchiera[row-1][column-1].getPezzo()==null || canEat(scacchiera[row-1][column-1].getPezzo())))
             pos.add(new Casella(row-1, column-1));
 
         if(!this.isGiaMosso()) {
@@ -59,7 +59,6 @@ public class King extends Piece
                 pos.add(new Casella(7, 2));
 
         }
-        pos.removeIf(positions -> column < 0 || column > 7 || row < 0 || row > 7);
         return pos;
     }
 

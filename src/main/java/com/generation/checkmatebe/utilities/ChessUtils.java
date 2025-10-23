@@ -27,13 +27,13 @@ public final class ChessUtils {
         return columnLetter - 'a';
     }
 
-    public static PieceDTO converti(Piece piece)
-    {
-        String tipo = piece.getClass().getSimpleName().toLowerCase(); // "bishop", "pawn", ecc.
-        String colore = piece.getColor().name();                      // enum → stringa
-        String posizione = piece.getPosizione().getNomeCasella();   // es. (1,4) → "e2"
-        return new PieceDTO(tipo, colore, posizione);
-    }
+//    public static PieceDTO converti(Piece piece)
+//    {
+//        String tipo = piece.getClass().getSimpleName().toLowerCase(); // "bishop", "pawn", ecc.
+//        String colore = piece.getColor().name();                      // enum → stringa
+//        String posizione = piece.getPosizione().getNomeCasella();   // es. (1,4) → "e2"
+//        return new PieceDTO(tipo, colore, posizione);
+//    }
 
 //    private static String convertiPosizione(Posizione pos)
 //    {

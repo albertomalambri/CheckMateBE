@@ -46,7 +46,8 @@ public class PartitaController
     @PostMapping("/start")
     public List<PieceDTO> startGame()
     {
-        return gameEngine.findAllAsDto(gameEngine.inizializzaGamestate().getId());
+        ScacchieraGamestate gameState = gameEngine.inizializzaGamestate();
+        return gameEngine.findAllAsDto(gameState.getId());
     }
 }
 

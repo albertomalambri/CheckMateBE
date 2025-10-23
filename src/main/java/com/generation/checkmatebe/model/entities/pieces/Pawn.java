@@ -14,8 +14,6 @@ import java.util.List;
 
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class Pawn extends Piece
 {
 
@@ -30,38 +28,40 @@ public class Pawn extends Piece
     public List<Casella> calcolaMossePossibili()
     {
         Casella[][] scacchiera = this.getPosizione().getGameState().getScacchiera();
-        int row = Integer.parseInt(""+this.getPosizione().getNomeCasella().charAt(1));
+        int row = Integer.parseInt(""+this.getPosizione().getNomeCasella().charAt(1))-1;
         int column = ChessUtils.getColumnIndex(this.getPosizione().getNomeCasella().charAt(0));
         List<Casella> pos = new ArrayList<>();
         if (this.getColor().equals(Color.BIANCO)) {
-            if (row!=1 && scacchiera[row+1][column].getPezzo()==null)
+            if (row!=1 && row+1<8 && scacchiera[row+1][column].getPezzo()==null)
                 pos.add(new Casella(row + 1, column));
             else {
+                if (scacchiera[row+1][column].getPezzo()==null)
                     pos.add(new Casella(row + 1, column));
+                if (scacchiera[row+2][column].getPezzo()==null)
                     pos.add(new Casella(row + 2, column));
             }
 
-            if(scacchiera[row+1][column+1].getPezzo()!=null && canEat(scacchiera[row+1][column+1].getPezzo()))
+            if(row+1<8 && column+1<8 && scacchiera[row+1][column+1].getPezzo()!=null && canEat(scacchiera[row+1][column+1].getPezzo()))
                 pos.add(new Casella(row+1,column+1));
-            if (scacchiera[row+1][column-1].getPezzo()!=null && canEat(scacchiera[row+1][column-1].getPezzo()))
+            if (row+1<8 && column-1>=0 && scacchiera[row+1][column-1].getPezzo()!=null && canEat(scacchiera[row+1][column-1].getPezzo()))
                 pos.add(new Casella(row+1,column-1));
         }
         else if (this.getColor().equals(Color.NERO)) {
-            if (row!=6 && scacchiera[row-1][column].getPezzo()==null)
+            if (row!=6 && row-1>=0 && scacchiera[row-1][column].getPezzo()==null)
                 pos.add(new Casella(row - 1, column));
 
             else {
+                if (scacchiera[row-1][column].getPezzo()==null)
                     pos.add(new Casella(row - 1, column));
+                if (scacchiera[row-2][column].getPezzo()==null)
                     pos.add(new Casella(row - 2, column));
             }
 
-            if(scacchiera[row-1][column+1].getPezzo()!=null && canEat(scacchiera[row-1][column+1].getPezzo()))
+            if(row-1>=0 && column+1<8 && scacchiera[row-1][column+1].getPezzo()!=null && canEat(scacchiera[row-1][column+1].getPezzo()))
                 pos.add(new Casella(row+1,column+1));
-            if (scacchiera[row-1][column-1].getPezzo()!=null && canEat(scacchiera[row-1][column-1].getPezzo()))
+            if (row-1>=0 && column-1>=0 && scacchiera[row-1][column-1].getPezzo()!=null && canEat(scacchiera[row-1][column-1].getPezzo()))
                 pos.add(new Casella(row+1,column-1));
         }
-        pos.removeIf(positions -> column < 0 || column > 7 || row < 0 || row > 7 || scacchiera[row+1][column].getPezzo()!=null ||
-                scacchiera[row+2][column].getPezzo()!=null || scacchiera[row-1][column].getPezzo()!=null || scacchiera[row-2][column].getPezzo()!=null);
         return pos;
     }
 

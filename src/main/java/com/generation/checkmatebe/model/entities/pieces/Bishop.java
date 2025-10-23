@@ -26,7 +26,7 @@ public class Bishop extends Piece
     public List<Casella> calcolaMossePossibili()
     {
         Casella[][] scacchiera = this.getPosizione().getGameState().getScacchiera();
-        int row = Integer.parseInt(""+this.getPosizione().getNomeCasella().charAt(1));
+        int row = Integer.parseInt(""+this.getPosizione().getNomeCasella().charAt(1))-1;
         int column = ChessUtils.getColumnIndex(this.getPosizione().getNomeCasella().charAt(0));
         List<Casella> pos = new ArrayList<>();
         boolean stop1 = true;
@@ -36,48 +36,50 @@ public class Bishop extends Piece
 
         for (int i=1; i<8; i++) {
             if (stop1) {
-                if (scacchiera[row + i][column + i].getPezzo() == null)
-                    pos.add(new Casella(row + i, column + i));
-                else if (canEat(scacchiera[row + i][column + i].getPezzo())) {
-                    pos.add(new Casella(row + i, column + i));
-                    stop1=false;
+                if (row+i<8 && column+i<8 ) {
+                    if (scacchiera[row + i][column + i].getPezzo() == null)
+                        pos.add(new Casella(row + i, column + i));
+                    else if (canEat(scacchiera[row + i][column + i].getPezzo())) {
+                        pos.add(new Casella(row + i, column + i));
+                        stop1 = false;
+                    } else
+                        stop1 = false;
                 }
-                else
-                    stop1=false;
             }
             if (stop2) {
-                if (scacchiera[row + i][column - i].getPezzo() == null)
-                    pos.add(new Casella(row + i, column - i));
-                else if (canEat(scacchiera[row + i][column - i].getPezzo())) {
-                    pos.add(new Casella(row + i, column - i));
-                    stop2=false;
+                if (row+i<8 && column-i>=0) {
+                    if (scacchiera[row + i][column - i].getPezzo() == null)
+                        pos.add(new Casella(row + i, column - i));
+                    else if (canEat(scacchiera[row + i][column - i].getPezzo())) {
+                        pos.add(new Casella(row + i, column - i));
+                        stop2 = false;
+                    } else
+                        stop2 = false;
                 }
-                else
-                    stop2=false;
             }
             if (stop3) {
-                if (scacchiera[row - i][column + i].getPezzo() == null)
+                if (row-i>=0 && column+i<8) {
+                    if (scacchiera[row - i][column + i].getPezzo() == null)
                     pos.add(new Casella(row - i, column + i));
                 else if (canEat(scacchiera[row - i][column + i].getPezzo())) {
-                    pos.add(new Casella(row - i, column + i));
-                    stop3=false;
+                        pos.add(new Casella(row - i, column + i));
+                        stop3 = false;
+                    } else
+                        stop3 = false;
                 }
-                else
-                    stop3=false;
             }
             if (stop4) {
-                if (scacchiera[row - i][column - i].getPezzo() == null)
-                    pos.add(new Casella(row - i, column - i));
-                else if (canEat(scacchiera[row - i][column - i].getPezzo())) {
-                    pos.add(new Casella(row - i, column - i));
-                    stop4=false;
+                if (row-i>=0 && column-i>=0) {
+                    if (scacchiera[row - i][column - i].getPezzo() == null)
+                        pos.add(new Casella(row - i, column - i));
+                    else if (canEat(scacchiera[row - i][column - i].getPezzo())) {
+                        pos.add(new Casella(row - i, column - i));
+                        stop4 = false;
+                    } else
+                        stop4 = false;
                 }
-                else
-                    stop4=false;
             }
         }
-
-        pos.removeIf(positions -> column < 0 || column > 7 || row < 0 || row > 7);
         return pos;
     }
 

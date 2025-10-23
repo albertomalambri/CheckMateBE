@@ -77,7 +77,7 @@ public class GameEngine
             }
         }
         scacchiera.setScacchiera(caselle);
-
+        repo.save(scacchiera);
         return scacchiera;
     }
 
