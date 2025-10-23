@@ -120,16 +120,16 @@ public class GameEngine
         }
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                if (scacchiera[i][j].getNomePezzo()!=null) {
+                if (scacchiera[i][j].getNomePezzo()!=null && scacchiera[i][j].getPezzo().getColor() == gameState.getCurrentPlayer()) {
                     List<String> pos = new ArrayList<>();
                     PieceDTO piece = new PieceDTO();
                     piece.setPosizione(scacchiera[i][j].getNomeCasella());
-                    if (scacchiera[i][j].getPezzo().getColor() == gameState.getCurrentPlayer()) {
-                        for (Casella c : scacchiera[i][j].getPezzo().calcolaMossePossibili())
-                            pos.add(ChessUtils.positionToString(c.getNomeCasella().charAt(0), c.getNomeCasella().charAt(1)));
-                        piece.setMossePossibili(pos);
-                    } else
-                        pos = null;
+
+                    for (Casella c : scacchiera[i][j].getPezzo().calcolaMossePossibili())
+                        pos.add(c.getNomeCasella());
+                    //ChessUtils.positionToString(ChessUtils.getColumnIndex(c.getNomeCasella().charAt(0)), Integer.parseInt(""+c.getNomeCasella().charAt(1)))
+                    piece.setMossePossibili(pos);
+
                     tuttiDto.add(piece);
                 }
             }

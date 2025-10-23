@@ -20,7 +20,7 @@ public final class ChessUtils {
 
     public static String positionToString(int row, int column) {
         char colLetter = (char) ('a' + column);
-        return colLetter + String.valueOf(row + 1);
+        return ""+ colLetter + (row + 1);
     }
 
     public static int getColumnIndex(char columnLetter) {
