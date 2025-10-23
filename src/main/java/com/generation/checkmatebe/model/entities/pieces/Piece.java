@@ -8,17 +8,15 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.util.List;
 @Getter
 @Setter
-@MappedSuperclass
-public abstract class Piece
+public abstract class Piece implements Serializable
 {
     private boolean giaMosso = false;
     @NotNull
     private Color color;
-    @NotNull
-    private inGame inGame;
 
     protected Casella posizione;  // classe custom con riga/colonna
 

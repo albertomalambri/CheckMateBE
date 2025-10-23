@@ -103,6 +103,14 @@ public class Rook extends Piece
 
     @Override
     public String getNome() {
-        return "rook";
+        if (this.isGiaMosso() && this.getColor()== Color.BIANCO)
+            return "rook_b_true";
+        if (this.isGiaMosso() && this.getColor() == Color.NERO)
+            return "rook_n_true";
+        if (!this.isGiaMosso() && this.getColor()== Color.BIANCO)
+            return "rook_b_false";
+        if (!this.isGiaMosso() && this.getColor()== Color.NERO)
+            return "rook_n_false";
+        return "";
     }
 }

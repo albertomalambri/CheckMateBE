@@ -1,6 +1,7 @@
 package com.generation.checkmatebe.model.entities.pieces;
 
 import com.generation.checkmatebe.model.entities.Casella;
+import com.generation.checkmatebe.model.enums.Color;
 import com.generation.checkmatebe.utilities.ChessUtils;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -139,6 +140,14 @@ public class Queen extends Piece
 
     @Override
     public String getNome() {
-        return "queen";
+        if (this.isGiaMosso() && this.getColor()== Color.BIANCO)
+            return "queen_b_true";
+        if (this.isGiaMosso() && this.getColor() == Color.NERO)
+            return "queen_n_true";
+        if (!this.isGiaMosso() && this.getColor()== Color.BIANCO)
+            return "queen_b_false";
+        if (!this.isGiaMosso() && this.getColor()== Color.NERO)
+            return "queen_n_false";
+        return "";
     }
 }

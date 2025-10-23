@@ -4,9 +4,11 @@ import com.generation.checkmatebe.model.entities.pieces.Piece;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 @Getter
 @Setter
-public class Mossa
+public class Mossa implements Serializable
 {
     private int turno;
     private String da; // "e2"

@@ -1,6 +1,7 @@
 package com.generation.checkmatebe.model.entities.pieces;
 
 import com.generation.checkmatebe.model.entities.Casella;
+import com.generation.checkmatebe.model.enums.Color;
 import com.generation.checkmatebe.utilities.ChessUtils;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -91,6 +92,14 @@ public class Bishop extends Piece
 
     @Override
     public String getNome() {
-        return "bishop";
+        if (this.isGiaMosso() && this.getColor()== Color.BIANCO)
+            return "bishop_b_true";
+        if (this.isGiaMosso() && this.getColor() == Color.NERO)
+            return "bishop_n_true";
+        if (!this.isGiaMosso() && this.getColor()== Color.BIANCO)
+            return "bishop_b_false";
+        if (!this.isGiaMosso() && this.getColor()== Color.NERO)
+            return "bishop_n_false";
+        return "";
     }
 }

@@ -73,7 +73,15 @@ public class Pawn extends Piece
 
     @Override
     public String getNome() {
-        return "pawn";
+        if (this.isGiaMosso() && this.getColor()== Color.BIANCO)
+            return "pawn_b_true";
+        if (this.isGiaMosso() && this.getColor() == Color.NERO)
+            return "pawn_n_true";
+        if (!this.isGiaMosso() && this.getColor()== Color.BIANCO)
+            return "pawn_b_false";
+        if (!this.isGiaMosso() && this.getColor()== Color.NERO)
+            return "pawn_n_false";
+        return "";
     }
 }
 

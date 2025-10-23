@@ -9,6 +9,7 @@ import com.generation.checkmatebe.model.entities.ScacchieraGamestate;
 import com.generation.checkmatebe.model.entities.pieces.*;
 import com.generation.checkmatebe.model.repositories.ScacchieraRepository;
 import com.generation.checkmatebe.utilities.ChessUtils;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,41 +36,41 @@ public class GameEngine
                 if (i<=1 || i>=6) {
                     if (i==1 || i==6) {
                         Pawn pedone = new Pawn();
-                        pedone.setInGame(inGame.YES);
                         pedone.setPosizione(casella);
                         pedone.setColor(controlloColorePezzo(i));
+                        casella.setSalvataggio(pedone);
                     }
                     else {
                         switch (""+ChessUtils.positionToString(i,j).charAt(0)) {
                             case "a", "h" -> {
                                 Rook rook = new Rook();
-                                rook.setInGame(inGame.YES);
                                 rook.setPosizione(casella);
                                 rook.setColor(controlloColorePezzo(i));
+                                casella.setSalvataggio(rook);
                             }
                             case "b","g" -> {
                                 Knight knight = new Knight();
-                                knight.setInGame(inGame.YES);
                                 knight.setPosizione(casella);
                                 knight.setColor(controlloColorePezzo(i));
+                                casella.setSalvataggio(knight);
                             }
                             case "c","f" -> {
                                 Bishop bishop = new Bishop();
-                                bishop.setInGame(inGame.YES);
                                 bishop.setPosizione(casella);
                                 bishop.setColor(controlloColorePezzo(i));
+                                casella.setSalvataggio(bishop);
                             }
                             case "d" -> {
                                 Queen queen = new Queen();
-                                queen.setInGame(inGame.YES);
                                 queen.setPosizione(casella);
                                 queen.setColor(controlloColorePezzo(i));
+                                casella.setSalvataggio(queen);
                             }
                             case "e" -> {
                                 King king = new King();
-                                king.setInGame(inGame.YES);
                                 king.setPosizione(casella);
                                 king.setColor(controlloColorePezzo(i));
+                                casella.setSalvataggio(king);
                             }
                         }
                     }
@@ -104,20 +105,30 @@ public class GameEngine
     }
 
     public List<PieceDTO> findAllAsDto(Long id) {
-        Casella[][] scacchiera = repo.getReferenceById(id).getScacchiera();
+        ScacchieraGamestate gameState = repo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Scacchiera non trovata"));
+        Casella[][] scacchiera = gameState.getScacchiera();
         List<PieceDTO> tuttiDto = new ArrayList<>();
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                if(scacchiera[i][j].getPezzo()!=null) {
+                scacchiera[i][j].setGameState(gameState);
+                if (scacchiera[i][j].getNomePezzo() != null) {
+                    scacchiera[i][j].setPezzo(convertitorePezzi(scacchiera[i][j]));
+                }
+            }
+
+        }
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (scacchiera[i][j].getNomePezzo()!=null) {
                     List<String> pos = new ArrayList<>();
                     PieceDTO piece = new PieceDTO();
                     piece.setPosizione(scacchiera[i][j].getNomeCasella());
-                    if(scacchiera[i][j].getPezzo().getColor()==repo.getReferenceById(id).getCurrentPlayer()) {
+                    if (scacchiera[i][j].getPezzo().getColor() == gameState.getCurrentPlayer()) {
                         for (Casella c : scacchiera[i][j].getPezzo().calcolaMossePossibili())
                             pos.add(ChessUtils.positionToString(c.getNomeCasella().charAt(0), c.getNomeCasella().charAt(1)));
                         piece.setMossePossibili(pos);
-                    }
-                    else
+                    } else
                         pos = null;
                     tuttiDto.add(piece);
                 }
@@ -125,6 +136,74 @@ public class GameEngine
 
         }
         return tuttiDto;
+    }
+
+    private Piece convertitorePezzi(Casella casella) {
+        String[] split = casella.getNomePezzo().split("_");
+        switch (split[0]) {
+            case "bishop" -> {
+                Bishop bishop = new Bishop();
+                bishop.setPosizione(casella);
+                if (split[1].equals("n"))
+                    bishop.setColor(Color.NERO);
+                else
+                    bishop.setColor(Color.BIANCO);
+                bishop.setGiaMosso(Boolean.parseBoolean(split[2]));
+                casella.setSalvataggio(bishop);
+                return bishop;
+            }
+            case "king" -> {
+                King king = new King();
+                king.setPosizione(casella);
+                if (split[1].equals("n"))
+                    king.setColor(Color.NERO);
+                else
+                    king.setColor(Color.BIANCO);
+                king.setGiaMosso(Boolean.parseBoolean(split[2]));
+                casella.setSalvataggio(king);
+                return king;}
+            case "knight" -> {
+                Knight knight = new Knight();
+                knight.setPosizione(casella);
+                if (split[1].equals("n"))
+                    knight.setColor(Color.NERO);
+                else
+                    knight.setColor(Color.BIANCO);
+                knight.setGiaMosso(Boolean.parseBoolean(split[2]));
+                casella.setSalvataggio(knight);
+                return knight;}
+            case "pawn" -> {
+                Pawn pawn = new Pawn();
+                pawn.setPosizione(casella);
+                if (split[1].equals("n"))
+                    pawn.setColor(Color.NERO);
+                else
+                    pawn.setColor(Color.BIANCO);
+                pawn.setGiaMosso(Boolean.parseBoolean(split[2]));
+                casella.setSalvataggio(pawn);
+                return pawn;}
+            case "queen" -> {
+                Queen queen = new Queen();
+                queen.setPosizione(casella);
+                if (split[1].equals("n"))
+                    queen.setColor(Color.NERO);
+                else
+                    queen.setColor(Color.BIANCO);
+                queen.setGiaMosso(Boolean.parseBoolean(split[2]));
+                casella.setSalvataggio(queen);
+                return queen;}
+            case "rook" -> {
+                Rook rook = new Rook();
+                rook.setPosizione(casella);
+                if (split[1].equals("n"))
+                    rook.setColor(Color.NERO);
+                else
+                    rook.setColor(Color.BIANCO);
+                rook.setGiaMosso(Boolean.parseBoolean(split[2]));
+                casella.setSalvataggio(rook);
+                return rook;}
+            default -> {return null;}
+        }
     }
 
 //    private Piece creaPezzoIniziale(int row, int col) {

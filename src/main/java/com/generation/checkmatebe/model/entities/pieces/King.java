@@ -70,6 +70,14 @@ public class King extends Piece
 
     @Override
     public String getNome() {
-        return "king";
+        if (this.isGiaMosso() && this.getColor()== Color.BIANCO)
+            return "king_b_true";
+        if (this.isGiaMosso() && this.getColor() == Color.NERO)
+            return "king_n_true";
+        if (!this.isGiaMosso() && this.getColor()== Color.BIANCO)
+            return "king_b_false";
+        if (!this.isGiaMosso() && this.getColor()== Color.NERO)
+            return "king_n_false";
+        return "";
     }
 }
