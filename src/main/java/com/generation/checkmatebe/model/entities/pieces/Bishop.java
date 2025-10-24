@@ -30,54 +30,67 @@ public class Bishop extends Piece
         int row = Integer.parseInt(""+this.getPosizione().getNomeCasella().charAt(1))-1;
         int column = ChessUtils.getColumnIndex(this.getPosizione().getNomeCasella().charAt(0));
         List<Casella> pos = new ArrayList<>();
-        boolean stop1 = true;
-        boolean stop2 = true;
-        boolean stop3 = true;
-        boolean stop4 = true;
+        boolean dir1 = true; //in basso a destra
+        boolean dir2 = true; //in basso a sinistra
+        boolean dir3 = true; //in alto a destra
+        boolean dir4 = true;//in alto a sinistra
+/**
+     0 1 2 3 4 5 6 7
 
+ 0   r n b . k b n r
+ 1   p p p p p p p p
+ 2   . . . . . . q .
+ 3   . . . . . . . .
+ 4   . . . . . . . .
+ 5   . . . K . . . .
+ 6   . . . . . . . .
+ 7   . . . . . . . .
+
+
+ */
         for (int i=1; i<8; i++) {
-            if (stop1) {
+            if (dir1) {
                 if (row+i<8 && column+i<8 ) {
                     if (scacchiera[row + i][column + i].getPezzo() == null)
                         pos.add(new Casella(row + i, column + i));
                     else if (canEat(scacchiera[row + i][column + i].getPezzo())) {
                         pos.add(new Casella(row + i, column + i));
-                        stop1 = false;
+                        dir1 = false;
                     } else
-                        stop1 = false;
+                        dir1 = false;
                 }
             }
-            if (stop2) {
+            if (dir2) {
                 if (row+i<8 && column-i>=0) {
                     if (scacchiera[row + i][column - i].getPezzo() == null)
                         pos.add(new Casella(row + i, column - i));
                     else if (canEat(scacchiera[row + i][column - i].getPezzo())) {
                         pos.add(new Casella(row + i, column - i));
-                        stop2 = false;
+                        dir2 = false;
                     } else
-                        stop2 = false;
+                        dir2 = false;
                 }
             }
-            if (stop3) {
+            if (dir3) {
                 if (row-i>=0 && column+i<8) {
                     if (scacchiera[row - i][column + i].getPezzo() == null)
                     pos.add(new Casella(row - i, column + i));
                 else if (canEat(scacchiera[row - i][column + i].getPezzo())) {
                         pos.add(new Casella(row - i, column + i));
-                        stop3 = false;
+                        dir3 = false;
                     } else
-                        stop3 = false;
+                        dir3 = false;
                 }
             }
-            if (stop4) {
+            if (dir4) {
                 if (row-i>=0 && column-i>=0) {
                     if (scacchiera[row - i][column - i].getPezzo() == null)
                         pos.add(new Casella(row - i, column - i));
                     else if (canEat(scacchiera[row - i][column - i].getPezzo())) {
                         pos.add(new Casella(row - i, column - i));
-                        stop4 = false;
+                        dir4 = false;
                     } else
-                        stop4 = false;
+                        dir4 = false;
                 }
             }
         }

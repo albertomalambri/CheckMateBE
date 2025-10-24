@@ -32,53 +32,53 @@ public class Rook extends Piece
         int row = Integer.parseInt(""+this.getPosizione().getNomeCasella().charAt(1))-1;
         int column = ChessUtils.getColumnIndex(this.getPosizione().getNomeCasella().charAt(0));
         List<Casella> pos = new ArrayList<>();
-        boolean stop1 = true;
-        boolean stop2 = true;
-        boolean stop3 = true;
-        boolean stop4 = true;
+        boolean dir1 = true;
+        boolean dir2 = true;
+        boolean dir3 = true;
+        boolean dir4 = true;
         for (int i = 1; i < 8; i++) {
-            if (stop1) {
+            if (dir1) {
                 if (row+i<8) {
                     if (scacchiera[row + i][column].getPezzo() == null)
                         pos.add(new Casella(row + i, column));
                     else if (canEat(scacchiera[row + i][column].getPezzo())) {
                         pos.add(new Casella(row + i, column));
-                        stop1 = false;
+                        dir1 = false;
                     } else
-                        stop1 = false;
+                        dir1 = false;
                 }
             }
-            if (stop2) {
+            if (dir2) {
                 if (row-i>=0) {
                     if (scacchiera[row - i][column].getPezzo() == null)
                         pos.add(new Casella(row - i, column));
                     else if (canEat(scacchiera[row - i][column].getPezzo())) {
                         pos.add(new Casella(row - i, column));
-                        stop2 = false;
+                        dir2 = false;
                     } else
-                        stop2 = false;
+                        dir2 = false;
                 }
             }
-            if (stop3) {
+            if (dir3) {
                 if (column+i<8) {
                     if (scacchiera[row][column + i].getPezzo() == null)
                         pos.add(new Casella(row, column + i));
                     else if (canEat(scacchiera[row][column + i].getPezzo())) {
                         pos.add(new Casella(row, column + i));
-                        stop3 = false;
+                        dir3 = false;
                     } else
-                        stop3 = false;
+                        dir3 = false;
                 }
             }
-            if (stop4) {
+            if (dir4) {
                 if (column-i>=0) {
                     if (scacchiera[row][column - i].getPezzo() == null)
                         pos.add(new Casella(row, column - i));
                     else if (canEat(scacchiera[row][column - i].getPezzo())) {
                         pos.add(new Casella(row, column - i));
-                        stop4 = false;
+                        dir4 = false;
                     } else
-                        stop4 = false;
+                        dir4 = false;
                 }
             }
         }

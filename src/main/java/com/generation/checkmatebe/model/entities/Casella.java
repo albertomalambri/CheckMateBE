@@ -16,8 +16,8 @@ import java.io.Serializable;
 @Setter
 public class Casella implements Serializable
 {
-//    private final int row;     // da 1 a 8
-//    private final int column;
+    private final int row;     // da 1 a 8
+    private final int column;
     // da 1 a 8 (oppure 'a'–'h' se vuoi usare lettere)
     private String nomeCasella; //es e4
 
@@ -32,10 +32,12 @@ public class Casella implements Serializable
 
     private String nomePezzo;
 
-    public Casella() {}
+
 
     public Casella(int row, int column)
     {
+        this.row = row;
+        this.column = column;
         this.nomeCasella= ChessUtils.positionToString(row, column);
     }
 
