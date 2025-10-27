@@ -1,11 +1,5 @@
 package com.generation.checkmatebe.utilities;
 
-import com.generation.checkmatebe.dtos.PieceDTO;
-import com.generation.checkmatebe.model.entities.Casella;
-import com.generation.checkmatebe.model.entities.pieces.Piece;
-
-import java.util.List;
-
 public final class ChessUtils {
 
     // Costruttore privato per evitare istanziazione
@@ -25,7 +19,7 @@ public final class ChessUtils {
 
     public static int getColumnIndex(char columnLetter) {
         return columnLetter - 'a';
-    }
+    } //101-97 4
 
 //    public static PieceDTO converti(Piece piece)
 //    {
@@ -35,10 +29,8 @@ public final class ChessUtils {
 //        return new PieceDTO(tipo, colore, posizione);
 //    }
 
-//    private static String convertiPosizione(Posizione pos)
-//    {
-//        char col = (char) ('a' + pos.getColumn() - 1);
-//        int row = pos.getRow();
-//        return "" + col + row;
-//    }
+    public static int getRowIndex(char rowLetter) {
+        return 8 - Character.getNumericValue(rowLetter); // 8 - 4 = 4
+    }
+
 }
