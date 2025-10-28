@@ -37,7 +37,8 @@ public class Casella implements Serializable
         this.nomeCasella= ChessUtils.positionToString(row, column);
     }
 
-    public void svuotaCasella() {
+    public void svuotaCasella()
+    {
         this.pezzo = null;
     }
 

@@ -5,6 +5,10 @@ import com.generation.checkmatebe.model.entities.Mossa;
 import com.generation.checkmatebe.model.entities.ScacchieraGamestate;
 import com.generation.checkmatebe.utilities.ChessUtils;
 
+import java.util.Arrays;
+
+//arrocco, en passant, promozione(lato front, back forse da cambiare inGame)
+
 public enum Pezzo {
     PEDONE(1, "PE") {
         @Override
