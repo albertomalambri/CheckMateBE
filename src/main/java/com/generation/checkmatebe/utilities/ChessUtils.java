@@ -14,8 +14,10 @@ public final class ChessUtils {
 
     public static String positionToString(int row, int column) {
         char colLetter = (char) ('a' + column);
-        return ""+ colLetter + (row + 1);
+        int invertedRow = 8 - row; // Inverte la riga: 0 → 8, 1 → 7, ..., 7 → 1
+        return "" + colLetter + invertedRow;
     }
+
 
     public static int getColumnIndex(char columnLetter) {
         return columnLetter - 'a';

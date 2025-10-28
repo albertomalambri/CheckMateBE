@@ -1,58 +1,54 @@
 package com.generation.checkmatebe.controllers;
 
-//commento
 import com.generation.checkmatebe.dtos.CasellaDTO;
-import com.generation.checkmatebe.model.entities.ScacchieraGamestate;
+import com.generation.checkmatebe.dtos.MossaDTO;
 import com.generation.checkmatebe.services.GameEngine;
 import com.generation.checkmatebe.services.GameStateService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/mock")
-public class PartitaController
-{
-    @Autowired
-    GameStateService gameStateService;
+@RequestMapping("/api/partita")
+public class PartitaController {
 
-//    @GetMapping("/partita")
-//    public ResponseEntity<PartitaDTO> getMockPartita()
-//    {
-//        PartitaDTO partita = new PartitaDTO();
-//        partita.setId(1L);
-//        partita.setGiocatoreBianco("Alberto");
-//        partita.setGiocatoreNero("Stockfish");
-//        partita.setRisultato("1-0");
-//        partita.setStatoFinaleFEN("rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2");
-//
-//        List<MossaDTO> mosse = new ArrayList<>();
-//        mosse.add(new MossaDTO(1, "e2", "e4", "pedone", false, false, false));
-//        mosse.add(new MossaDTO(1, "c7", "c5", "pedone", false, false, false));
-//        partita.setMosse(mosse);
-//
-//        return ResponseEntity.ok(partita);
-//    }
+    @Autowired
+    private GameStateService gameStateService;
+
+    @Autowired
+    private GameEngine gameEngine;
 
     @PostMapping("/start")
-    public List<CasellaDTO> startGame()
-    {
-        ScacchieraGamestate gameState = gameStateService.inizializzaGamestate();
-        return gameStateService.findAllAsDto(gameState.getId());
+    public ResponseEntity<List<CasellaDTO>> startGame() {
+        var gameState = gameStateService.inizializzaGamestate();
+        var caselle = gameStateService.findAllAsDto(gameState.getId());
+        return ResponseEntity.ok(caselle);
+    }
+
+    @GetMapping("/stato/{id}")
+    public ResponseEntity<List<CasellaDTO>> getStatoScacchiera(@PathVariable Long id) {
+        try {
+            var caselle = gameStateService.findAllAsDto(id);
+            return ResponseEntity.ok(caselle);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/mossa/{id}")
+    public ResponseEntity<CasellaDTO> eseguiMossa(@PathVariable Long id, @RequestBody MossaDTO mossa) {
+        try {
+            var risultato = gameEngine.secondoGamestate(id, mossa);
+            return ResponseEntity.ok(risultato);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
     }
 }
-
-//    @GetMapping("/pezzi")
-//    public ResponseEntity<List<PieceDTO>> getPezziCorrenti()
-//    {
-//        ScacchieraGamestate stato = gameEngine.inizializzaGamestate(); //scacchiera a inizio partita
-//        List<PieceDTO> pezzi = stato.getPezzi().stream()
-//                .map(ChessUtils::converti)
-//                .collect(Collectors.toList());
-//        return ResponseEntity.ok(pezzi);
-//    }
-//}
-

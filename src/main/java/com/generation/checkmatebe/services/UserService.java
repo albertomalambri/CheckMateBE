@@ -22,24 +22,32 @@ public class UserService
     @Autowired
     private UserRepository repo;
 
-    public String register(RegisterDTO RegisterDTO)
-    {
-
-
-        if(!RegisterDTO.getPassword().matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$"))
+    public String register(RegisterDTO RegisterDTO) {
+        //Controllo della password sul DTO
+        String password = RegisterDTO.getPassword();
+        if (!password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$")) {
             throw new InvalidCredentials("Password not valid");
+        }
 
+        //Creazione dell’utente
         User user = new User();
         user.setUsername(RegisterDTO.getUsername());
+        user.setEmail(RegisterDTO.getEmail());
+
+        //Hash della password prima di salvarla
         String hash = DigestUtils.md5Hex(RegisterDTO.getPassword());
         user.setPassword(hash);
-        user.setEmail(RegisterDTO.getEmail()); //
+
+        //Valori per le colonne NOT NULL
+        user.setElo(1000);                   // solo qui
+        user.setRank(Rank.fromRating(1000)); // solo qui
+        user.setPartiteGiocate(0);
+        user.setWinRate(0);
         user.setRole(Role.STANDARD);
-
-        System.out.println(hash);
-        //genero un token in automatico
         user.setToken(UUID.randomUUID().toString());
+        repo.save(user);
 
+        //Salvataggio nel database
         repo.save(user);
 
         return user.getToken();
@@ -72,12 +80,14 @@ public class UserService
         Rank rank = Rank.fromRating(u.getElo());
 
         UserOutputDTO dto = new UserOutputDTO();
+        dto.setId(u.getId());
         dto.setUsername(u.getUsername());
         dto.setEmail(u.getEmail());
-        dto.setRole(u.getRole());
-        dto.setElo(u.getElo());
         dto.setRank(rank);
+        dto.setElo(u.getElo());
+        dto.setPartiteGiocate(u.getPartiteGiocate());
+        dto.setWinRate(u.getWinRate());
+        dto.setRole(u.getRole());
         return dto;
     }
 }
-
