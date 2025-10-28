@@ -1,5 +1,6 @@
 package com.generation.checkmatebe.model.entities;
 
+import com.generation.checkmatebe.model.enums.Rank;
 import com.generation.checkmatebe.model.enums.Role;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -36,7 +37,7 @@ public class User
     @NotBlank(message = "Username required")
     private String username;
     @NotBlank
-    private String Rank;
+    private Rank rank;
     //fase di ranking elo=null
     private int elo;
     @PositiveOrZero

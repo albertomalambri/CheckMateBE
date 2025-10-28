@@ -1,29 +1,23 @@
 package com.generation.checkmatebe.controllers;
 
 //commento
-import com.generation.checkmatebe.dtos.MossaDTO;
-import com.generation.checkmatebe.dtos.PartitaDTO;
-import com.generation.checkmatebe.dtos.PieceDTO;
+import com.generation.checkmatebe.dtos.CasellaDTO;
 import com.generation.checkmatebe.model.entities.ScacchieraGamestate;
 import com.generation.checkmatebe.services.GameEngine;
-import com.generation.checkmatebe.utilities.ChessUtils;
+import com.generation.checkmatebe.services.GameStateService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/mock")
 public class PartitaController
 {
     @Autowired
-    GameEngine gameEngine;
+    GameStateService gameStateService;
 
 //    @GetMapping("/partita")
 //    public ResponseEntity<PartitaDTO> getMockPartita()
@@ -44,10 +38,10 @@ public class PartitaController
 //    }
 
     @PostMapping("/start")
-    public List<PieceDTO> startGame()
+    public List<CasellaDTO> startGame()
     {
-        ScacchieraGamestate gameState = gameEngine.inizializzaGamestate();
-        return gameEngine.findAllAsDto(gameState.getId());
+        ScacchieraGamestate gameState = gameStateService.inizializzaGamestate();
+        return gameStateService.findAllAsDto(gameState.getId());
     }
 }
 
