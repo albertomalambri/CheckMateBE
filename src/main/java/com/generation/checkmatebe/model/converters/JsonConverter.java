@@ -6,17 +6,19 @@ import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
 @Converter
-public class JsonConverter<T> implements AttributeConverter<T, String> {
-
+public class JsonConverter<T> implements AttributeConverter<T, String>
+{
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private final Class<T> type;
 
-    public JsonConverter(Class<T> type) {
+    public JsonConverter(Class<T> type)
+    {
         this.type = type;
     }
 
     @Override
-    public String convertToDatabaseColumn(T attribute) {
+    public String convertToDatabaseColumn(T attribute)
+    {
         if (attribute == null) return null;
         try {
             return objectMapper.writeValueAsString(attribute);
@@ -26,7 +28,8 @@ public class JsonConverter<T> implements AttributeConverter<T, String> {
     }
 
     @Override
-    public T convertToEntityAttribute(String dbData) {
+    public T convertToEntityAttribute(String dbData)
+    {
         if (dbData == null) return null;
         try {
             return objectMapper.readValue(dbData, type);

@@ -3,14 +3,12 @@ package com.generation.checkmatebe.model.entities;
 import com.generation.checkmatebe.model.converters.CasellaMatrixConverter;
 import com.generation.checkmatebe.model.converters.MossaListConverter;
 import com.generation.checkmatebe.model.enums.Color;
-import com.generation.checkmatebe.model.entities.pieces.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.LinkedList;
 @Entity
 @Getter

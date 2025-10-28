@@ -5,6 +5,7 @@ import com.generation.checkmatebe.dtos.RegisterDTO;
 import com.generation.checkmatebe.dtos.UserOutputDTO;
 import com.generation.checkmatebe.exceptions.InvalidCredentials;
 import com.generation.checkmatebe.model.entities.User;
+import com.generation.checkmatebe.model.enums.Rank;
 import com.generation.checkmatebe.model.enums.Role;
 import com.generation.checkmatebe.model.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,11 +69,14 @@ public class UserService
     public UserOutputDTO readUserDTO(String token)
     {
         User u = findUserByToken(token);
+        Rank rank = Rank.fromRating(u.getElo());
 
         UserOutputDTO dto = new UserOutputDTO();
         dto.setUsername(u.getUsername());
         dto.setEmail(u.getEmail());
         dto.setRole(u.getRole());
+        dto.setElo(u.getElo());
+        dto.setRank(rank);
         return dto;
     }
 }

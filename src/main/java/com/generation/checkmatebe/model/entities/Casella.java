@@ -23,13 +23,10 @@ public class Casella implements Serializable
     @JsonIgnore
     private ScacchieraGamestate gameState;
 
-    @Enumerated(EnumType.STRING)
-    private Color color;
-
     @JsonIgnore
     private Pezzo pezzo;
     private Color colorePezzo;
-    private String nomePezzo;
+
 
 
 
@@ -40,7 +37,8 @@ public class Casella implements Serializable
         this.nomeCasella= ChessUtils.positionToString(row, column);
     }
 
-    public void svuotaCasella() {
+    public void svuotaCasella()
+    {
         this.pezzo = null;
     }
 
