@@ -35,7 +35,6 @@ public enum Pezzo {
                 }
                 //avanzamento base pedone
                 return colEnd == colStart && rowEnd == rowStart - 1;
-
             }
             //caso pedone nero
             else if (m.getStart().getColorePezzo() == Color.NERO) {

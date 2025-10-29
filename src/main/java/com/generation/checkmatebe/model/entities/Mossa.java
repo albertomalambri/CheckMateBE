@@ -3,8 +3,10 @@ package com.generation.checkmatebe.model.entities;
 import com.generation.checkmatebe.model.enums.Pezzo;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.validation.ObjectError;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Getter
 @Setter
@@ -17,4 +19,7 @@ public class Mossa implements Serializable
     private boolean cattura;
     private boolean arrocco;
     private boolean promozione;
+
+
+
 }
