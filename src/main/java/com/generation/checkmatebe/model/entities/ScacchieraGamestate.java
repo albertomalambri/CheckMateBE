@@ -17,8 +17,9 @@ public class ScacchieraGamestate implements Serializable
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
     @Lob
-    private Casella[][] scacchiera;
+    private Casella[][] scacchiera = new Casella[8][8];
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -40,12 +41,5 @@ public class ScacchieraGamestate implements Serializable
 
 
 
-//    public void refreshPosizioni() {
-//        Casella[][] posizioni = new Casella[8][8];
-//        for (int i = 0; i < 7; i++) {
-//            for (int j = 0; j < 7; j++) {
-//                posizioni[i][j]= ;
-//        }
-//        this.scacchiera = posizioni;
-//    }
+
 }

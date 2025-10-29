@@ -1,19 +1,16 @@
 package com.generation.checkmatebe;
 
-import com.generation.checkmatebe.dtos.CasellaDTO;
 import com.generation.checkmatebe.model.entities.ScacchieraGamestate;
-import com.generation.checkmatebe.services.GameEngine;
+import com.generation.checkmatebe.services.GameEngineService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.List;
 
 @SpringBootTest
 class CheckMateBeApplicationTests {
 
     @Autowired
-    GameEngine engine;
+    GameEngineService engine;
 
     @Test
     void contextLoads() {

@@ -7,7 +7,7 @@ import com.generation.checkmatebe.utilities.ChessUtils;
 
 import java.util.Arrays;
 
-//arrocco, en passant, promozione(lato front, back forse da cambiare inGame)
+//arrocco, en passant,is checked/checkMate promozione(lato front, back forse da cambiare inGame)
 
 public enum Pezzo {
     PEDONE(1, "PE") {
@@ -144,7 +144,7 @@ public enum Pezzo {
             }
         },
 
-        RE(0,"RE") {
+        RE(0, "RE") {
             @Override
             boolean mossaValidaSpecifica(ScacchieraGamestate gameState, Mossa m) {
                 int colStart = m.getStart().getColumn();
@@ -153,34 +153,22 @@ public enum Pezzo {
                 int rowEnd = m.getEnd().getRow();
                 Casella[][] scacchiera = gameState.getScacchiera();
 
-                int[] dirCheck = {rowEnd - rowStart, colEnd - colStart};  // {1,-1}
-                //solo controlli specifici per re
-                int[][] direzioni = {
-                        {-1, -1}, //alto sinistra
-                        {-1, 0}, //alto
-                        {-1, 1}, //alto destra
-                        {0, 1}, //destra
-                        {1, 1}, //basso destra
-                        {1, 0}, //basso
-                        {1, -1}, //basso sinistra
-                        {0, -1} //sinistra
-                };
+                int dirCol = Math.abs(colEnd - colStart);
+                int dirRow = Math.abs(rowEnd - rowStart);
 
-                //controllo per vedere se dove va il re è occupato da un pezzo alleato
+                boolean movimentoValido = (dirCol <= 1 && dirRow <= 1) && !(dirCol == 0 && dirRow == 0);
+                boolean destinazioneLiberaOAvversaria = m.getEnd().getColorePezzo() != m.getStart().getColorePezzo();
 
-
-                for (int[] dir : direzioni)
-                {
-                    if (Arrays.equals(dirCheck, dir)) {
-                        if (m.getEnd().getPezzo() != null &&
-                                m.getEnd().getColorePezzo() == m.getStart().getColorePezzo())
-                        {
-                            return false; //❌ non può muoversi su pezzo alleato
-                        }
-                        return true; //✅ direzione valida e casella libera o con nemico
-                    }
+                if (!m.getStart().isGiaMosso()) {
+                    if (m.getStart().getColorePezzo()==Color.BIANCO && ((isStraightPathClear(gameState, rowStart,colStart,rowEnd,colEnd) && !scacchiera[7][7].isGiaMosso()) ||
+                            (isStraightPathClear(gameState, rowStart,colStart,rowEnd,colEnd) && !scacchiera[7][0].isGiaMosso())))
+                        return true;
+                    if (m.getStart().getColorePezzo()==Color.NERO && ((isStraightPathClear(gameState, rowStart,colStart,rowEnd,colEnd) && !scacchiera[0][7].isGiaMosso()) ||
+                            (isStraightPathClear(gameState, rowStart,colStart,rowEnd,colEnd) && !scacchiera[0][0].isGiaMosso())))
+                        return true;
                 }
-                return false; //❌ direzione non valida
+
+                return movimentoValido && destinazioneLiberaOAvversaria;
             }
         };
 

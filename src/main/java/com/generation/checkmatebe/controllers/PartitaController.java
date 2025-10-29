@@ -2,7 +2,9 @@ package com.generation.checkmatebe.controllers;
 
 import com.generation.checkmatebe.dtos.CasellaDTO;
 import com.generation.checkmatebe.dtos.MossaDTO;
-import com.generation.checkmatebe.services.GameEngine;
+import com.generation.checkmatebe.dtos.ScacchieraGamestateDTO;
+import com.generation.checkmatebe.model.entities.ScacchieraGamestate;
+import com.generation.checkmatebe.services.GameEngineService;
 import com.generation.checkmatebe.services.GameStateService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,30 +21,32 @@ public class PartitaController {
     private GameStateService gameStateService;
 
     @Autowired
-    private GameEngine gameEngine;
+    private GameEngineService gameEngineService;
 
     @PostMapping("/start")
-    public ResponseEntity<List<CasellaDTO>> startGame() {
-        var gameState = gameStateService.inizializzaGamestate();
-        var caselle = gameStateService.findAllAsDto(gameState.getId());
-        return ResponseEntity.ok(caselle);
+    public ResponseEntity<ScacchieraGamestateDTO> startGame() {
+        ScacchieraGamestateDTO risultatoDTO = gameStateService.inizializzaGamestate();
+        return ResponseEntity.ok(risultatoDTO);
     }
+
 
     @GetMapping("/stato/{id}")
     public ResponseEntity<List<CasellaDTO>> getStatoScacchiera(@PathVariable Long id) {
         try {
-            var caselle = gameStateService.findAllAsDto(id);
-            return ResponseEntity.ok(caselle);
+            ScacchieraGamestateDTO risultatoDTO = new ScacchieraGamestateDTO();
+            return ResponseEntity.ok(risultatoDTO);
+
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
     @PostMapping("/mossa/{id}")
-    public ResponseEntity<CasellaDTO> eseguiMossa(@PathVariable Long id, @RequestBody MossaDTO mossa) {
+    public ResponseEntity<ScacchieraGamestateDTO> eseguiMossa(@PathVariable Long id, @RequestBody MossaDTO mossa) {
         try {
-            var risultato = gameEngine.secondoGamestate(id, mossa);
-            return ResponseEntity.ok(risultato);
+            ScacchieraGamestate risultato = gameEngineService.nextGameState(id, mossa);// <-- conversione necessaria
+            ScacchieraGamestateDTO risultatoDTO = new ScacchieraGamestateDTO();
+            return ResponseEntity.ok(risultatoDTO);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         } catch (IllegalArgumentException e) {
@@ -52,3 +56,4 @@ public class PartitaController {
         }
     }
 }
+

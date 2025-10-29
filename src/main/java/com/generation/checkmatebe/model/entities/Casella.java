@@ -38,6 +38,7 @@ public class Casella implements Serializable
     public void svuotaCasella()
     {
         this.pezzo = null;
+        this.setColorePezzo(null);
     }
 
 }

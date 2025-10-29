@@ -1,23 +1,22 @@
 package com.generation.checkmatebe.services;
 
+import com.generation.checkmatebe.dtos.ScacchieraGamestateDTO;
 import com.generation.checkmatebe.model.entities.Casella;
+import com.generation.checkmatebe.model.entities.Mossa;
 import com.generation.checkmatebe.model.entities.ScacchieraGamestate;
-import com.generation.checkmatebe.model.enums.Color;
-import com.generation.checkmatebe.model.enums.Pezzo;
-
-import java.util.Set;
 
 import com.generation.checkmatebe.dtos.MossaDTO;
-import com.generation.checkmatebe.dtos.CasellaDTO;
+import com.generation.checkmatebe.model.enums.Pezzo;
 import com.generation.checkmatebe.model.repositories.ScacchieraRepository;
+import com.generation.checkmatebe.utilities.ChessUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class GameEngine
+public class GameEngineService
 {
     @Autowired
-    ScacchieraRepository repo;
+    ScacchieraRepository ScacchieraRepository;
 
     @Autowired
     GameStateService gameStateService;
@@ -28,13 +27,38 @@ public class GameEngine
         return gameStateService.inizializzaGamestate();
     }
 
-    public CasellaDTO secondoGamestate(Long id, MossaDTO dto) //prende come input ScacchieraGamestate,Move
+    public ScacchieraGamestate nextGameState(Long id, MossaDTO dto) //prende come input ScacchieraGamestate,Move
     {
-        ScacchieraGamestate gameState = repo.getReferenceById(id);
-        gameState.cambioTurno();
-        //pezzo viene mangiato?
-        //mossa fattibile o non fattibile
-        return new CasellaDTO();
+        ScacchieraGamestate currentGameState = ScacchieraRepository.getReferenceById(id);
+        // da = e4 dove e sta per la colonna e 4 per la riga
+        int colStart = ChessUtils.getColumnIndex(dto.getDa().charAt(0));
+        int rowStart = ChessUtils.getRowIndex(dto.getDa().charAt(1));
+        int colEnd = ChessUtils.getColumnIndex(dto.getA().charAt(0));
+        int rowEnd = ChessUtils.getRowIndex(dto.getA().charAt(1));
+
+        Mossa m = new Mossa();
+        m.setTurno(dto.getTurno());
+        m.setStart(currentGameState.getScacchiera()[rowStart][colStart]);
+        m.setEnd(currentGameState.getScacchiera()[rowEnd][colEnd]);
+        m.setPezzo(Pezzo.getByCodice(dto.getPezzo())); //PE,CA,AL,RE,RG,TO
+        m.setCattura(dto.isCattura());
+        if(m.getPezzo().mossaValida(currentGameState,m))
+        {
+            ScacchieraGamestate nextGameState = currentGameState;
+            //legare alla casella finale il pezzo in posizione start
+            Casella[][] scacchiera = currentGameState.getScacchiera();
+            Pezzo p = m.getPezzo();
+            scacchiera[rowEnd][colEnd].setPezzo(p);
+            //settare a null casella di partenza
+            scacchiera[rowStart][colStart].svuotaCasella();
+            //dopo l'aggiornamento andrà salvato in nextGamestate
+            nextGameState.setScacchiera(scacchiera);
+            nextGameState.cambioTurno();
+            nextGameState.getPreviousMoves().add(m);
+            ScacchieraRepository.save(nextGameState);
+            return nextGameState;
+        }
+        throw new IllegalArgumentException("Mossa non valida: " + dto.getDa() + " → " + dto.getA());
     }
 }
 
