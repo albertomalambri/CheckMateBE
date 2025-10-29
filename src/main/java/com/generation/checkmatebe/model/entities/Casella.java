@@ -25,6 +25,8 @@ public class Casella implements Serializable
     private Pezzo pezzo;
     private Color colorePezzo;
 
+    private boolean giaMosso = false;
+
 
 
 

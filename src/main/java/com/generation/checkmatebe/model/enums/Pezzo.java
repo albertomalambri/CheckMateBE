@@ -28,7 +28,7 @@ public enum Pezzo {
 
 
             //METODO CanEAT
-            //caso pedone bianco
+            //caso pedone bianco - 3 per enpassant
             else if (m.getStart().getColorePezzo() == Color.BIANCO) {
                 if (colEnd == colStart - 1 && rowEnd == rowStart - 1 || colEnd == colStart + 1 && rowEnd == rowStart - 1) {
                     return (m.getEnd().getColorePezzo() != m.getStart().getColorePezzo());
@@ -36,7 +36,7 @@ public enum Pezzo {
                 //avanzamento base pedone
                 return colEnd == colStart && rowEnd == rowStart - 1;
             }
-            //caso pedone nero
+            //caso pedone nero - 4 per enpassant
             else if (m.getStart().getColorePezzo() == Color.NERO) {
                 if (colEnd == colStart - 1 && rowEnd == rowStart + 1 || colEnd == colStart + 1 && rowEnd == rowStart + 1) {
                     return m.getEnd().getColorePezzo() != m.getStart().getColorePezzo();
@@ -118,6 +118,14 @@ public enum Pezzo {
                 int rowStart = m.getStart().getRow();
                 int colEnd = m.getEnd().getColumn();
                 int rowEnd = m.getEnd().getRow();
+                Casella[][] scacchiera = gameState.getScacchiera();
+
+                if (!m.getStart().isGiaMosso()) {
+                    if (m.getStart().getColorePezzo()==Color.BIANCO && ((isStraightPathClear(gameState, rowStart,colStart,rowEnd,colEnd) && !scacchiera[7][4].isGiaMosso())))
+                        return true;
+                    if (m.getStart().getColorePezzo()==Color.NERO && ((isStraightPathClear(gameState, rowStart,colStart,rowEnd,colEnd) && !scacchiera[0][4].isGiaMosso())))
+                        return true;
+                }
 
                 return (rowStart==rowEnd || colStart==colEnd) &&
                         isStraightPathClear(gameState, rowStart, colStart, rowEnd, colEnd) &&

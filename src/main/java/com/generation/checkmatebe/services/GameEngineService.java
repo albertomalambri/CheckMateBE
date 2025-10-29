@@ -22,7 +22,7 @@ public class GameEngineService
     GameStateService gameStateService;
 
 
-    public ScacchieraGamestate inizializzaGamestate()
+    public ScacchieraGamestateDTO inizializzaGamestate()
     {
         return gameStateService.inizializzaGamestate();
     }

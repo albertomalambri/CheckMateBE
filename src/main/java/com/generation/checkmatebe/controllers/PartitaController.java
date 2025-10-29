@@ -31,7 +31,7 @@ public class PartitaController {
 
 
     @GetMapping("/stato/{id}")
-    public ResponseEntity<List<CasellaDTO>> getStatoScacchiera(@PathVariable Long id) {
+    public ResponseEntity<ScacchieraGamestateDTO> getStatoScacchiera(@PathVariable Long id) {
         try {
             ScacchieraGamestateDTO risultatoDTO = new ScacchieraGamestateDTO();
             return ResponseEntity.ok(risultatoDTO);

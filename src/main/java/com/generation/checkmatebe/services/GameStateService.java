@@ -1,6 +1,7 @@
 package com.generation.checkmatebe.services;
 
 import com.generation.checkmatebe.dtos.CasellaDTO;
+import com.generation.checkmatebe.dtos.ScacchieraGamestateDTO;
 import com.generation.checkmatebe.model.entities.Casella;
 import com.generation.checkmatebe.model.entities.ScacchieraGamestate;
 import com.generation.checkmatebe.model.enums.Color;
@@ -39,7 +40,7 @@ public class GameStateService
         }
         return caselleDTO;
     }
-    public ScacchieraGamestate inizializzaGamestate()
+    public ScacchieraGamestateDTO inizializzaGamestate()
     {
         ScacchieraGamestate gameState = new ScacchieraGamestate();
         Casella[][] scacchiera = new Casella[8][8];
@@ -52,7 +53,7 @@ public class GameStateService
         }
         gameState.setScacchiera(scacchiera);
         repo.save(gameState);
-        return gameState;
+        return convertToDtoScacchiera(gameState);
     }
     private void setupCasella(Casella casella)
     {
@@ -82,5 +83,15 @@ public class GameStateService
             casella.svuotaCasella(); // pezzo = null
             casella.setColorePezzo(null);
         }
+    }
+
+    private ScacchieraGamestateDTO convertToDtoScacchiera(ScacchieraGamestate gamestate) {
+        ScacchieraGamestateDTO dto = new ScacchieraGamestateDTO();
+        dto.setId(gamestate.getId());
+        dto.setScacchiera(findAllAsDto(gamestate.getId()));
+        dto.setCurrentPlayer(gamestate.getCurrentPlayer());
+        dto.setCheck(gamestate.isCheck());
+        dto.setCheckMate(gamestate.isCheckMate());
+        return dto;
     }
 }
