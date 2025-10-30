@@ -18,4 +18,5 @@ public class ScacchieraGamestateDTO {
     private Color currentPlayer;
     private boolean isCheck;
     private boolean isCheckMate;
+    private boolean isStallo;
 }

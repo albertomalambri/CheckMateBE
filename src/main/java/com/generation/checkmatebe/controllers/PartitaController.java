@@ -52,7 +52,8 @@ public class PartitaController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         } catch (Exception e) {
-            return ResponseEntity.status(500).build();
+//            return ResponseEntity.status(500).build();
+            throw e;
         }
     }
 }

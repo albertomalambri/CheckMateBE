@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 
 import static com.generation.checkmatebe.model.enums.Color.BIANCO;
+import static com.generation.checkmatebe.model.enums.Color.NERO;
 
 @Service
 public class GameEngineService
@@ -39,13 +40,13 @@ public class GameEngineService
     {
         ScacchieraGamestate currentGameState = ScacchieraRepository.getReferenceById(id);
         // da = e4 dove e sta per la colonna e 4 per la riga
-        int colStart = ChessUtils.getColumnIndex(dto.getDa().charAt(0));
-        int rowStart = ChessUtils.getRowIndex(dto.getDa().charAt(1));
-        int colEnd = ChessUtils.getColumnIndex(dto.getA().charAt(0));
-        int rowEnd = ChessUtils.getRowIndex(dto.getA().charAt(1));
+        int colStart = ChessUtils.getColumnIndex(dto.getDa().charAt(1));
+        int rowStart = ChessUtils.getRowIndex(dto.getDa().charAt(0));
+        int colEnd = ChessUtils.getColumnIndex(dto.getA().charAt(1));
+        int rowEnd = ChessUtils.getRowIndex(dto.getA().charAt(0));
 
         Mossa m = new Mossa();
-        m.setTurno(dto.getTurno());
+        m.setTurno(dto.getNumero());
         m.setStart(currentGameState.getScacchiera()[rowStart][colStart]);
         m.setEnd(currentGameState.getScacchiera()[rowEnd][colEnd]);
         m.setPezzo(Pezzo.getByCodice(dto.getPezzo().toUpperCase())); //PE,CA,AL,RE,RG,TO
@@ -79,6 +80,10 @@ public class GameEngineService
                     nextGameState.setCheck(false);
                     nextGameState.setCheckMate(false);
                 }
+                if (verificaStallo(nextGameState))
+                    nextGameState.setStallo(false);
+                else
+                    nextGameState.setStallo(true);
                 ScacchieraRepository.save(nextGameState);
                 return nextGameState;
             }
@@ -318,24 +323,30 @@ public class GameEngineService
         }
         return false;
     }
+    //Return true se trova una mossa possibile, sennò false e quindi è stallo
+    public boolean verificaStallo(ScacchieraGamestate gamestate) {
+        Casella [][] scacchiera = gamestate.getScacchiera();
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (scacchiera[i][j].getColorePezzo()==null) {
+                    if (gamestate.getCurrentPlayer()== BIANCO)
+                        scacchiera[i][j].setColorePezzo(NERO);
+                    else
+                        scacchiera[i][j].setColorePezzo(BIANCO);
+                    if (isChecked(gamestate,scacchiera[i][j])) {
+                        scacchiera[i][j].setColorePezzo(null);
+                        return true;
+                    }
+                    scacchiera[i][j].setColorePezzo(null);
 
-//    public boolean mosseDisponibili(ScacchieraGamestate gamestate) {
-//        Casella [][] scacchiera = gamestate.getScacchiera();
-//        for (int i = 0; i < 8; i++) {
-//            for (int j = 0; j < 8; j++) {
-//                if (scacchiera[i][j].getColorePezzo()!=null && scacchiera[i][j].getColorePezzo()==gamestate.getCurrentPlayer()) {
-//                    Mossa m = new Mossa();
-//                    m.se
-//                    switch (scacchiera[i][j].getPezzo()) {
-//                        case PEDONE -> {
-//                            return
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        return false;
-//    }
+                } else if (scacchiera[i][j].getColorePezzo()!=gamestate.getCurrentPlayer()) {
+                    if (isChecked(gamestate, scacchiera[i][j]))
+                        return true;
+                }
+            }
+        }
+        return false;
+    }
 
 }
 

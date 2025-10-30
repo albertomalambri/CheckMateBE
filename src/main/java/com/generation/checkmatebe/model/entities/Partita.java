@@ -26,6 +26,6 @@ public class Partita
     private LocalDateTime tempo;
 
     private String risultato; // "1-0", "0-1", "½-½"
-    private List<MossaDTO> mosse;
+    private List<Mossa> mosse;
     private String statoFinaleFEN;
 }

@@ -32,6 +32,7 @@ public class ScacchieraGamestate implements Serializable
     private LinkedList<Mossa> previousMoves; // linked list per tenerle in ordine
     private boolean isCheck; //controllo Check
     private boolean isCheckMate; //controllo checkMate
+    private boolean isStallo;
     //private boolean live; //partita live o finita
 
 
