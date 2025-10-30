@@ -1,6 +1,8 @@
 package com.generation.checkmatebe.model.entities;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.generation.checkmatebe.model.enums.Color;
 import com.generation.checkmatebe.model.enums.Pezzo;
 import com.generation.checkmatebe.utilities.ChessUtils;
@@ -21,16 +23,15 @@ public class Casella implements Serializable
     @JsonIgnore
     private ScacchieraGamestate gameState;
 
-    @JsonIgnore
+//    @JsonIgnore
     private Pezzo pezzo;
     private Color colorePezzo;
 
     private boolean giaMosso = false;
 
 
-
-
-    public Casella(int row, int column)
+    @JsonCreator
+    public Casella(@JsonProperty("row") int row,@JsonProperty("column") int column)
     {
         this.row = row;
         this.column = column;

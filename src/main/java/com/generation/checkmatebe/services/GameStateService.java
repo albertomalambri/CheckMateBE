@@ -3,6 +3,7 @@ package com.generation.checkmatebe.services;
 import com.generation.checkmatebe.dtos.CasellaDTO;
 import com.generation.checkmatebe.dtos.ScacchieraGamestateDTO;
 import com.generation.checkmatebe.model.entities.Casella;
+import com.generation.checkmatebe.model.entities.Mossa;
 import com.generation.checkmatebe.model.entities.ScacchieraGamestate;
 import com.generation.checkmatebe.model.enums.Color;
 import com.generation.checkmatebe.model.enums.Pezzo;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 @Service
@@ -20,9 +22,9 @@ public class GameStateService
     @Autowired
     private ScacchieraRepository repo;
 
-    public List<CasellaDTO> findAllAsDto(Long id) {
-        ScacchieraGamestate gameState = repo.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("gamestate not found"));
+    public List<CasellaDTO> findAllAsDto(ScacchieraGamestate gameState) {
+//        ScacchieraGamestate gameState = repo.findById(id)
+//                .orElseThrow(() -> new EntityNotFoundException("gamestate not found"));
         Casella[][] scacchiera = gameState.getScacchiera();
         List<CasellaDTO> caselleDTO = new ArrayList<>();
         for (int i = 0; i < 8; i++)
@@ -44,6 +46,7 @@ public class GameStateService
     {
         ScacchieraGamestate gameState = new ScacchieraGamestate();
         Casella[][] scacchiera = new Casella[8][8];
+        LinkedList<Mossa> previousMoves = new LinkedList<>();
         for (int i = 0; i < 8; i++) { //righe
             for (int j = 0; j < 8; j++) { //colonne
                 Casella casella = new Casella(i, j);
@@ -52,6 +55,7 @@ public class GameStateService
             }
         }
         gameState.setScacchiera(scacchiera);
+        gameState.setPreviousMoves(previousMoves);
         repo.save(gameState);
         return convertToDtoScacchiera(gameState);
     }
@@ -85,10 +89,10 @@ public class GameStateService
         }
     }
 
-    private ScacchieraGamestateDTO convertToDtoScacchiera(ScacchieraGamestate gamestate) {
+    public ScacchieraGamestateDTO convertToDtoScacchiera(ScacchieraGamestate gamestate) {
         ScacchieraGamestateDTO dto = new ScacchieraGamestateDTO();
         dto.setId(gamestate.getId());
-        dto.setScacchiera(findAllAsDto(gamestate.getId()));
+        dto.setScacchiera(findAllAsDto(gamestate));
         dto.setCurrentPlayer(gamestate.getCurrentPlayer());
         dto.setCheck(gamestate.isCheck());
         dto.setCheckMate(gamestate.isCheckMate());

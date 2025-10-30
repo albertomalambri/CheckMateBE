@@ -4,6 +4,7 @@ import com.generation.checkmatebe.model.enums.Rank;
 import com.generation.checkmatebe.model.enums.Role;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.UUID;
@@ -11,6 +12,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class UserOutputDTO
 {
     private long id;
@@ -22,7 +24,8 @@ public class UserOutputDTO
     private double winRate;
     private Role role;
 
-    public UserOutputDTO() {
-
+    public int getRoleAsInt()
+    {
+        return role.ordinal(); // STANDARD → 0, USER → 1
     }
 }

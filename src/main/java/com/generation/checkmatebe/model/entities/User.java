@@ -10,6 +10,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -43,8 +44,11 @@ public class User
     private int partiteGiocate;
     private double winRate;
 
-    private Role role;
+    private Role role = Role.USER;
     private String token;
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "destinatario")
+    private Set<IntercomMessage> messaggiRicevuti;
 
     public User() {
     }

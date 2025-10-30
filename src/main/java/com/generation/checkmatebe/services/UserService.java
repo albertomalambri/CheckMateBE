@@ -43,7 +43,7 @@ public class UserService
         user.setRank(Rank.fromRating(1000)); // solo qui
         user.setPartiteGiocate(0);
         user.setWinRate(0);
-        user.setRole(Role.STANDARD);
+        user.setRole(Role.USER);
         user.setToken(UUID.randomUUID().toString());
         repo.save(user);
 

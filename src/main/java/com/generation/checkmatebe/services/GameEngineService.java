@@ -6,11 +6,18 @@ import com.generation.checkmatebe.model.entities.Mossa;
 import com.generation.checkmatebe.model.entities.ScacchieraGamestate;
 
 import com.generation.checkmatebe.dtos.MossaDTO;
+import com.generation.checkmatebe.model.enums.Color;
 import com.generation.checkmatebe.model.enums.Pezzo;
 import com.generation.checkmatebe.model.repositories.ScacchieraRepository;
 import com.generation.checkmatebe.utilities.ChessUtils;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
+
+import static com.generation.checkmatebe.model.enums.Color.BIANCO;
 
 @Service
 public class GameEngineService
@@ -27,6 +34,7 @@ public class GameEngineService
         return gameStateService.inizializzaGamestate();
     }
 
+    @Transactional
     public ScacchieraGamestate nextGameState(Long id, MossaDTO dto) //prende come input ScacchieraGamestate,Move
     {
         ScacchieraGamestate currentGameState = ScacchieraRepository.getReferenceById(id);
@@ -40,147 +48,294 @@ public class GameEngineService
         m.setTurno(dto.getTurno());
         m.setStart(currentGameState.getScacchiera()[rowStart][colStart]);
         m.setEnd(currentGameState.getScacchiera()[rowEnd][colEnd]);
-        m.setPezzo(Pezzo.getByCodice(dto.getPezzo())); //PE,CA,AL,RE,RG,TO
+        m.setPezzo(Pezzo.getByCodice(dto.getPezzo().toUpperCase())); //PE,CA,AL,RE,RG,TO
         m.setCattura(dto.isCattura());
-        if(m.getPezzo().mossaValida(currentGameState,m))
+        if(m.getStart().getColorePezzo()== currentGameState.getCurrentPlayer() && m.getPezzo().mossaValida(currentGameState,m))
         {
             ScacchieraGamestate nextGameState = currentGameState;
             //legare alla casella finale il pezzo in posizione start
             Casella[][] scacchiera = currentGameState.getScacchiera();
+            LinkedList<Mossa> previousMoves = currentGameState.getPreviousMoves();
             Pezzo p = m.getPezzo();
             scacchiera[rowEnd][colEnd].setPezzo(p);
+            scacchiera[rowEnd][colEnd].setColorePezzo(m.getStart().getColorePezzo());
+            scacchiera[rowEnd][colEnd].setGiaMosso(true);
             //settare a null casella di partenza
             scacchiera[rowStart][colStart].svuotaCasella();
+            scacchiera[rowStart][colStart].setGiaMosso(true);
             //dopo l'aggiornamento andrà salvato in nextGamestate
-            nextGameState.setScacchiera(scacchiera);
-            nextGameState.cambioTurno();
-            nextGameState.getPreviousMoves().add(m);
-            ScacchieraRepository.save(nextGameState);
-            return nextGameState;
+            if (!isChecked(currentGameState,cercaRe(currentGameState))) {
+                nextGameState.setId(currentGameState.getId());
+                nextGameState.setScacchiera(scacchiera);
+                nextGameState.cambioTurno();
+                previousMoves.add(m);
+                nextGameState.setPreviousMoves(previousMoves);
+                Casella reNuovoTurno = cercaRe(nextGameState);
+                if (isChecked(nextGameState,reNuovoTurno) && isCheckMated(nextGameState,reNuovoTurno))
+                    nextGameState.setCheckMate(true);
+                else if (isChecked(nextGameState,reNuovoTurno))
+                    nextGameState.setCheck(true);
+                else {
+                    nextGameState.setCheck(false);
+                    nextGameState.setCheckMate(false);
+                }
+                ScacchieraRepository.save(nextGameState);
+                return nextGameState;
+            }
+
         }
         throw new IllegalArgumentException("Mossa non valida: " + dto.getDa() + " → " + dto.getA());
     }
+
+
+    public boolean isChecked (ScacchieraGamestate gamestate, Casella casellaRe)
+        {
+            /**
+             * Se controllando nella riga verticale e orizzontale del re e trovo una regina o torre avversaria: checked
+             * se controllando le diagonali passanti per la posizione del re e trovo una regina o un alfiere avversario come primo pezzo: checked
+             * se nelle due caselle diagonali "superiori" trovo un pedone: checked
+             * se possibili mosse dei cavalli avversari coincidono con la posizione del re: checked
+             * */
+            return isAttackedByRookOrQueen(gamestate, casellaRe)
+                    || isAttackedByBishopOrQueen(gamestate, casellaRe)
+                    || isAttackedByPawn(gamestate, casellaRe)
+                    || isAttackedByKnight(gamestate, casellaRe);
+        }
+
+
+    private boolean isAttackedByRookOrQueen(ScacchieraGamestate gamestate, Casella reCasella) {
+        int r = reCasella.getRow();
+        int c = reCasella.getColumn();
+        Casella[][] scacchiera = gamestate.getScacchiera();
+
+        // Destra
+        for (int j = c + 1; j < 8; j++) {
+            Casella cella = scacchiera[r][j];
+            if (cella.getPezzo() != null)
+                return controllaPezzo(cella, reCasella, Set.of("TO", "RG"));
+        }
+
+        // Sinistra
+        for (int j = c - 1; j >= 0; j--) {
+            Casella cella = scacchiera[r][j];
+            if (cella.getPezzo() != null)
+                return controllaPezzo(cella, reCasella, Set.of("TO", "RG"));
+        }
+
+        // Sopra
+        for (int i = r - 1; i >= 0; i--) {
+            Casella cella = scacchiera[i][c];
+            if (cella.getPezzo() != null)
+                return controllaPezzo(cella, reCasella, Set.of("TO", "RG"));
+        }
+
+        // Sotto
+        for (int i = r + 1; i < 8; i++) {
+            Casella cella = scacchiera[i][c];
+            if (cella.getPezzo() != null)
+                return controllaPezzo(cella, reCasella, Set.of("TO", "RG"));
+        }
+
+        return false;
+    }
+
+
+    private boolean isAttackedByBishopOrQueen(ScacchieraGamestate gamestate, Casella reCasella) {
+        int r = reCasella.getRow();
+        int c = reCasella.getColumn();
+        Casella[][] scacchiera = gamestate.getScacchiera();
+
+        // Alto-destra
+        for (int i = r - 1, j = c + 1; i >= 0 && j < 8; i--, j++) {
+            Casella cella = scacchiera[i][j];
+            if (cella.getPezzo() != null)
+                return controllaPezzo(cella, reCasella, Set.of("AL", "RG"));
+        }
+
+        // Alto-sinistra
+        for (int i = r - 1, j = c - 1; i >= 0 && j >= 0; i--, j--) {
+            Casella cella = scacchiera[i][j];
+            if (cella.getPezzo() != null)
+                return controllaPezzo(cella, reCasella, Set.of("AL", "RG"));
+        }
+
+        // Basso-destra
+        for (int i = r + 1, j = c + 1; i < 8 && j < 8; i++, j++) {
+            Casella cella = scacchiera[i][j];
+            if (cella.getPezzo() != null)
+                return controllaPezzo(cella, reCasella, Set.of("AL", "RG"));
+        }
+
+        // Basso-sinistra
+        for (int i = r + 1, j = c - 1; i < 8 && j >= 0; i++, j--) {
+            Casella cella = scacchiera[i][j];
+            if (cella.getPezzo() != null)
+                return controllaPezzo(cella, reCasella, Set.of("AL", "RG"));
+        }
+
+        return false;
+    }
+
+
+    private boolean controllaPezzo(Casella attaccante, Casella reCasella, Set<String> codiciValidi) {
+        Pezzo p = attaccante.getPezzo();
+        return p != null
+                && !attaccante.getColorePezzo().equals(reCasella.getColorePezzo())
+                && codiciValidi.contains(p.getCodice());
+    }
+
+
+
+
+
+    private boolean isAttackedByPawn(ScacchieraGamestate gamestate, Casella reCasella) {
+        int r = reCasella.getRow();
+        int c = reCasella.getColumn();
+        Casella[][] scacchiera = gamestate.getScacchiera();
+        Color reColor = reCasella.getColorePezzo();
+
+        int direction = (reColor == Color.BIANCO) ? -1 : 1;
+
+        for (int dc : new int[]{-1, 1}) {
+            int nr = r + direction;
+            int nc = c + dc;
+            if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
+                Casella cella = scacchiera[nr][nc];
+                Pezzo p = cella.getPezzo();
+                if (p != null && !cella.getColorePezzo().equals(reColor) && p.getCodice().equals("PE"))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    private boolean isAttackedByKnight(ScacchieraGamestate gamestate, Casella reCasella) {
+        int r = reCasella.getRow();
+        int c = reCasella.getColumn();
+        Casella[][] scacchiera = gamestate.getScacchiera();
+        Color reColor = reCasella.getColorePezzo();
+
+        int[][] moves = {
+                {-2, -1}, {-2, +1}, {-1, -2}, {-1, +2},
+                {+1, -2}, {+1, +2}, {+2, -1}, {+2, +1}
+        };
+
+        for (int[] m : moves) {
+            int nr = r + m[0];
+            int nc = c + m[1];
+            if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
+                Casella cella = scacchiera[nr][nc];
+                Pezzo p = cella.getPezzo();
+                if (p != null && !cella.getColorePezzo().equals(reColor) && p.getCodice().equals("CA"))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+
+
+    public boolean isCheckMated(ScacchieraGamestate gamestate, Casella casella)
+    {
+        /**
+         * Controllo caselle adiacenti is checked od occupate da altri pezzi
+         * controllo se nelle posibili mosse dei pezzi amici possono catturare il pezzo avversario
+         * controllo se pezzi amici si possono mettere nella traiettoria
+         * */
+        Casella[][] scacchiera = gamestate.getScacchiera();
+        int row = casella.getRow();
+        int column = casella.getColumn();
+        Casella casellaScacco = trovaPezzoCheDaScacco(gamestate,casella);
+
+        if ((row+1<8 && (scacchiera[row+1][column].getPezzo()==null || scacchiera[row+1][column].getColorePezzo() != casella.getColorePezzo()) && !isChecked(gamestate,scacchiera[row+1][column])))
+            return false;
+        if ((row-1>=0 && (scacchiera[row-1][column].getPezzo()==null || scacchiera[row-1][column].getColorePezzo() != casella.getColorePezzo()) && !isChecked(gamestate,scacchiera[row-1][column])))
+            return false;
+        if ((column+1<8 && (scacchiera[row][column+1].getPezzo()==null || scacchiera[row][column+1].getColorePezzo() != casella.getColorePezzo()) && !isChecked(gamestate,scacchiera[row][column+1])))
+            return false;
+        if ((column-1>=0 && (scacchiera[row][column-1].getPezzo()==null || scacchiera[row][column-1].getColorePezzo() != casella.getColorePezzo()) && !isChecked(gamestate,scacchiera[row][column-1])))
+            return false;
+        if ((row+1<8 && column-1>=0 && (scacchiera[row+1][column-1].getPezzo()==null || scacchiera[row+1][column-1].getColorePezzo() != casella.getColorePezzo()) && !isChecked(gamestate,scacchiera[row+1][column-1])))
+            return false;
+        if ((row+1<8 && column+1<8 && (scacchiera[row+1][column+1].getPezzo()==null || scacchiera[row+1][column+1].getColorePezzo() != casella.getColorePezzo()) && !isChecked(gamestate,scacchiera[row+1][column+1])))
+            return false;
+        if ((row-1>=0 && column+1<8 && (scacchiera[row-1][column+1].getPezzo()==null || scacchiera[row-1][column+1].getColorePezzo() != casella.getColorePezzo()) && !isChecked(gamestate,scacchiera[row-1][column+1])))
+            return false;
+        if ((row-1>=0 && column-1>=0 && (scacchiera[row-1][column-1].getPezzo()==null || scacchiera[row-1][column-1].getColorePezzo() != casella.getColorePezzo()) && !isChecked(gamestate,scacchiera[row-1][column-1])))
+            return false;
+        if (isChecked(gamestate,casellaScacco) || controllaPezzoCheProteggeDaScacco(gamestate, casella, casellaScacco))
+            return false;
+        return true;
+    }
+
+    public Casella cercaRe(ScacchieraGamestate gamestate) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (gamestate.getScacchiera()[i][j].getPezzo()!= null && gamestate.getScacchiera()[i][j].getPezzo().getCodice().equals("RE") && gamestate.getScacchiera()[i][j].getColorePezzo()==gamestate.getCurrentPlayer())
+                    return gamestate.getScacchiera()[i][j];
+            }
+        }
+        return null;
+    }
+
+    public Casella trovaPezzoCheDaScacco(ScacchieraGamestate gamestate, Casella casella) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (gamestate.getScacchiera()[i][j].getColorePezzo()!= null && gamestate.getScacchiera()[i][j].getColorePezzo()!=gamestate.getCurrentPlayer() && !gamestate.getScacchiera()[i][j].getPezzo().getCodice().equals("RE")) {
+                   Mossa mossa = new Mossa();
+                   mossa.setStart(gamestate.getScacchiera()[i][j]);
+                   mossa.setEnd(casella);
+                   mossa.setPezzo(gamestate.getScacchiera()[i][j].getPezzo());
+                   if (mossa.getPezzo().mossaValida(gamestate,mossa))
+                       return gamestate.getScacchiera()[i][j];
+                }
+            }
+        }
+        return null;
+    }
+
+    public boolean controllaPezzoCheProteggeDaScacco(ScacchieraGamestate gamestate, Casella casellaRe, Casella casellaScacco) {
+
+        Casella [][] scacchiera = gamestate.getScacchiera();
+        List<Casella> caselle = new ArrayList<>();
+
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (scacchiera[i][j].getPezzo()== null) {
+                    scacchiera[i][j].setPezzo(Pezzo.PEDONE);
+                    scacchiera[i][j].setColorePezzo(casellaRe.getColorePezzo());
+                    if (!isChecked(gamestate,casellaRe)) {
+                        scacchiera[i][j].setColorePezzo(casellaScacco.getColorePezzo());
+                        if (isChecked(gamestate, scacchiera[i][j]))
+                            return true;
+                    }
+                    scacchiera[i][j].svuotaCasella();
+                }
+            }
+        }
+        return false;
+    }
+
+//    public boolean mosseDisponibili(ScacchieraGamestate gamestate) {
+//        Casella [][] scacchiera = gamestate.getScacchiera();
+//        for (int i = 0; i < 8; i++) {
+//            for (int j = 0; j < 8; j++) {
+//                if (scacchiera[i][j].getColorePezzo()!=null && scacchiera[i][j].getColorePezzo()==gamestate.getCurrentPlayer()) {
+//                    Mossa m = new Mossa();
+//                    m.se
+//                    switch (scacchiera[i][j].getPezzo()) {
+//                        case PEDONE -> {
+//                            return
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        return false;
+//    }
+
 }
 
-//public boolean isChecked (ScacchieraGamestate gamestate, Casella casella)
-//    {
-//        /**
-//         * se controllando nella riga verticale e orizzontale del re e trovo una regina o torre avversaria: checked
-//         * se controllando le diagonali passanti per la posizione del re e trovo una regina o un alfiere avversario come primo pezzo: checked
-//         * se nelle due caselle diagonali "superiori" trovo un pedone: checked
-//         * se possibili mosse dei cavalli avversari coincidono con la posizione del re: checked
-//         * */
-//
-//
-//
-//return isAttackedByRookOrQueen(gamestate, casella)
-//                || isAttackedByBishopOrQueen(gamestate, casella)
-//                || isAttackedByPawn(gamestate, casella)
-//                || isAttackedByKnight(gamestate, casella);
-//
-//    }
-//    private boolean isAttackedByRookOrQueen(ScacchieraGamestate gamestate, Casella checkCasella)
-//    {
-//            //recupero la posizione
-//            int r,c;
-//            Casella[][] scacchiera= gamestate.getScacchiera();
-//            r = checkCasella.getRow();
-//            c = checkCasella.getColumn();
-//
-//            if(checkCasella.getPezzo()!=null) {
-//                Color pieceColor = checkCasella.getColorePezzo();
-//                //for per scorrere a destra
-//                for(int j=checkCasella.getColumn()+1;j<8;j++)
-//                    if(scacchiera[r][j].getPezzo()!=null)
-//                    {
-//                        return controllaPezzo(scacchiera[r][j].getPezzo(),checkCasella, Set.of("rook", "queen"));
-//                    }
-//
-//                // for per scorrere a sinistra
-//                for(int j=checkCasella.getColumn()+1;j>=0;j--)
-//                    if(scacchiera[r][j].getPezzo()!=null)
-//                    {
-//                        return controllaPezzo(scacchiera[r][j].getPezzo(),checkCasella, Set.of("rook", "queen"));
-//                    }
-//                //for per scorrere a sopra
-//                for(int i=checkCasella.getRow();i>=0;i--)
-//                    if(scacchiera[i][c].getPezzo()!=null)
-//                    {
-//                        return controllaPezzo(scacchiera[i][c].getPezzo(),checkCasella, Set.of("rook", "queen"));
-//                    }
-//                //for per scorrere a sotto
-//                for(int i=checkCasella.getRow();i<8;i++)
-//                    if(scacchiera[i][c].getPezzo()!=null)
-//                    {
-//                        return controllaPezzo(scacchiera[i][c].getPezzo(),checkCasella, Set.of("rook", "queen"));
-//                    }
-//            }
-//        return false;
-//    }
-//    private boolean isAttackedByBishopOrQueen(ScacchieraGamestate gamestate, Casella checkCasella){
-//        //recupero la posizione
-//        int r,c;
-//        Casella[][] scacchiera= gamestate.getScacchiera();
-//        r = checkCasella.getRow();
-//        c = checkCasella.getColumn();
-//
-//        // controllo diagonale alto a destra
-//        for(int i=checkCasella.getRow();i>=0;i--)//for per righe
-//            for(int j=checkCasella.getColumn();j<8;j++)//for per le colonne
-//                if(scacchiera[i][j].getPezzo()!=null)
-//                {
-//                    return controllaPezzo(scacchiera[i][j].getPezzo(),checkCasella, Set.of("bishop", "queen"));
-//                }
-//
-//        // controllo diagonale alto a sinistra
-//        for(int i=checkCasella.getRow();i>=0;i--)//for per righe
-//            for(int j=checkCasella.getColumn();j>=0;j--)//for per le colonne
-//                if(scacchiera[i][j].getPezzo()!=null)
-//                {
-//                    return controllaPezzo(scacchiera[i][j].getPezzo(),checkCasella, Set.of("bishop", "queen"));
-//                }
-//
-//        // controllo diagonale basso a destra
-//        for(int i=checkCasella.getRow();i<8;i++)//for per righe
-//            for(int j=checkCasella.getColumn();j<8;j++)//for per le colonne
-//                if(scacchiera[i][j].getPezzo()!=null)
-//                {
-//                    return controllaPezzo(scacchiera[i][j].getPezzo(),checkCasella, Set.of("bishop", "queen"));
-//                }
-//        // controllo diagonale basso a sinistra
-//        for(int i=checkCasella.getRow();i<8;i++)//for per righe
-//            for(int j=checkCasella.getColumn();j>=0;j--)//for per le colonne
-//                if(scacchiera[i][j].getPezzo()!=null)
-//                {
-//                    return controllaPezzo(scacchiera[i][j].getPezzo(),checkCasella, Set.of("bishop", "queen"));
-//                }
-//        return false;
-//    }
-//
-//    private boolean controllaPezzo(Pezzo p, Casella checkCasella, Set<String> attackingPieces)
-//    {
-//        return(p.getColor()!=checkCasella.getPezzo().getColor() && attackingPieces.contains(p.getNome()));
-//    }
-//
-//
-//
-//    private boolean isAttackedByPawn(ScacchieraGamestate gamestate, Casella checkCasella)
-//    {
-//        return false;
-//    }
-//    private boolean isAttackedByKnight(ScacchieraGamestate gamestate, Casella checkCasella)
-//    {
-//        return false;
-//    }
-//
-//    public boolean isCheckMated()
-//    {
-//        /**
-//         * controllo caselle adiacenti is checked o occupate da altri pezzi
-//         * controllo se nelle posibili mosse dei pezzi amici possono catturare il pezzo avversario
-//         * controllo se pezzi amici si possono mettere nella traiettoria
-//         * */
-//        return false;
-//
-//    }
-//}

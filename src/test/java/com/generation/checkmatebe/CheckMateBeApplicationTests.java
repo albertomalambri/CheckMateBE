@@ -1,5 +1,8 @@
 package com.generation.checkmatebe;
 
+import com.generation.checkmatebe.dtos.MossaDTO;
+import com.generation.checkmatebe.dtos.ScacchieraGamestateDTO;
+import com.generation.checkmatebe.model.entities.Mossa;
 import com.generation.checkmatebe.model.entities.ScacchieraGamestate;
 import com.generation.checkmatebe.services.GameEngineService;
 import org.junit.jupiter.api.Test;
@@ -15,7 +18,7 @@ class CheckMateBeApplicationTests {
     @Test
     void contextLoads() {
 
-        ScacchieraGamestate scacchiera = engine.inizializzaGamestate();
+//        ScacchieraGamestateDTO scacchiera = engine.inizializzaGamestate();
 //        scacchiera.getScacchiera()[0][3].getPezzo().setPosizione(scacchiera.getScacchiera()[4][4]);
 //        System.out.println(scacchiera.getScacchiera()[4][4].getPezzo().calcolaMossePossibili().stream().map(casella -> casella.getNomeCasella()).toList());
 //        scacchiera.getScacchiera()[0][3].svuotaCasella();
@@ -29,6 +32,17 @@ class CheckMateBeApplicationTests {
 //        System.out.println(ChessUtils.positionToString(0, 0)); // deve stampare "a1"
 //        System.out.println(ChessUtils.positionToString(1, 3)); // deve stampare "d2"
 //        System.out.println(ChessUtils.positionToString(7, 7)); // deve stampare "h8"
+
+        MossaDTO mossa = new MossaDTO();
+        mossa.setTurno(4);
+        mossa.setDa("d8");
+        mossa.setA("c7");
+        mossa.setPezzo("rg");
+        mossa.setCattura(false);
+        mossa.setArrocco(false);
+        mossa.setPromozione(false);
+
+        engine.nextGameState(7L,mossa);
     }
 
 }

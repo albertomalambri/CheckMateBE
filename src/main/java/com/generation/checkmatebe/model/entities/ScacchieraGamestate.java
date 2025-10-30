@@ -1,5 +1,7 @@
 package com.generation.checkmatebe.model.entities;
 
+import com.generation.checkmatebe.converters.CasellaMatrixConverter;
+import com.generation.checkmatebe.converters.MossaListConverter;
 import com.generation.checkmatebe.model.enums.Color;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -17,7 +19,7 @@ public class ScacchieraGamestate implements Serializable
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
+    @Convert(converter = CasellaMatrixConverter.class)
     @Lob
     private Casella[][] scacchiera = new Casella[8][8];
 
@@ -25,6 +27,7 @@ public class ScacchieraGamestate implements Serializable
     @Enumerated(EnumType.STRING)
     private Color currentPlayer = Color.BIANCO; // Bianco comincia
 
+    @Convert(converter = MossaListConverter.class)
     @Lob
     private LinkedList<Mossa> previousMoves; // linked list per tenerle in ordine
     private boolean isCheck; //controllo Check

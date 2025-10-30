@@ -45,7 +45,7 @@ public class PartitaController {
     public ResponseEntity<ScacchieraGamestateDTO> eseguiMossa(@PathVariable Long id, @RequestBody MossaDTO mossa) {
         try {
             ScacchieraGamestate risultato = gameEngineService.nextGameState(id, mossa);// <-- conversione necessaria
-            ScacchieraGamestateDTO risultatoDTO = new ScacchieraGamestateDTO();
+            ScacchieraGamestateDTO risultatoDTO = gameStateService.convertToDtoScacchiera(risultato);
             return ResponseEntity.ok(risultatoDTO);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
