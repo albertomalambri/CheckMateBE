@@ -34,15 +34,15 @@ class CheckMateBeApplicationTests {
 //        System.out.println(ChessUtils.positionToString(7, 7)); // deve stampare "h8"
 
 //        MossaDTO mossa = new MossaDTO();
-//        mossa.setTurno(1);
-//        mossa.setDa("e2");
-//        mossa.setA("e4");
-//        mossa.setPezzo("pe");
+//        mossa.setNumero(1);
+//        mossa.setDa("6e");
+//        mossa.setA("4e");
+//        mossa.setPezzo("rg");
 //        mossa.setCattura(false);
 //        mossa.setArrocco(false);
 //        mossa.setPromozione(false);
 //
-//        engine.nextGameState(1L,mossa);
+//        engine.nextGameState(57L,mossa);
     }
 
 }

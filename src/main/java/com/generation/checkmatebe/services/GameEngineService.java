@@ -64,18 +64,26 @@ public class GameEngineService
             //settare a null casella di partenza
             scacchiera[rowStart][colStart].svuotaCasella();
             scacchiera[rowStart][colStart].setGiaMosso(true);
+            Casella reNuovoTurno;
+            if (currentGameState.getCurrentPlayer()==BIANCO)
+                reNuovoTurno = cercaRe(nextGameState,NERO);
+            else
+                reNuovoTurno = cercaRe(nextGameState,BIANCO);
             //dopo l'aggiornamento andrà salvato in nextGamestate
-            if (!isChecked(currentGameState,cercaRe(currentGameState))) {
+            if (!isChecked(currentGameState,cercaRe(currentGameState,currentGameState.getCurrentPlayer()))) {
                 nextGameState.setId(currentGameState.getId());
                 nextGameState.setScacchiera(scacchiera);
                 nextGameState.cambioTurno();
                 previousMoves.add(m);
                 nextGameState.setPreviousMoves(previousMoves);
-                Casella reNuovoTurno = cercaRe(nextGameState);
-                if (isChecked(nextGameState,reNuovoTurno) && isCheckMated(nextGameState,reNuovoTurno))
-                    nextGameState.setCheckMate(true);
-                else if (isChecked(nextGameState,reNuovoTurno))
+                if (isChecked(nextGameState,reNuovoTurno)) {
+                    reNuovoTurno.setGiaMosso(true);
                     nextGameState.setCheck(true);
+                    if (isCheckMated(nextGameState,reNuovoTurno))
+                        nextGameState.setCheckMate(true);
+                    else
+                        nextGameState.setCheckMate(false);
+                }
                 else {
                     nextGameState.setCheck(false);
                     nextGameState.setCheckMate(false);
@@ -113,32 +121,32 @@ public class GameEngineService
         int c = reCasella.getColumn();
         Casella[][] scacchiera = gamestate.getScacchiera();
 
-        // Destra
-        for (int j = c + 1; j < 8; j++) {
-            Casella cella = scacchiera[r][j];
-            if (cella.getPezzo() != null)
-                return controllaPezzo(cella, reCasella, Set.of("TO", "RG"));
-        }
+        // 🔹 Direzioni: destra, sinistra, su, giù
+        int[][] directions = {
+                {0, 1},   // destra
+                {0, -1},  // sinistra
+                {-1, 0},  // su
+                {1, 0}    // giù
+        };
 
-        // Sinistra
-        for (int j = c - 1; j >= 0; j--) {
-            Casella cella = scacchiera[r][j];
-            if (cella.getPezzo() != null)
-                return controllaPezzo(cella, reCasella, Set.of("TO", "RG"));
-        }
+        for (int[] dir : directions) {
+            int i = r + dir[0];
+            int j = c + dir[1];
 
-        // Sopra
-        for (int i = r - 1; i >= 0; i--) {
-            Casella cella = scacchiera[i][c];
-            if (cella.getPezzo() != null)
-                return controllaPezzo(cella, reCasella, Set.of("TO", "RG"));
-        }
-
-        // Sotto
-        for (int i = r + 1; i < 8; i++) {
-            Casella cella = scacchiera[i][c];
-            if (cella.getPezzo() != null)
-                return controllaPezzo(cella, reCasella, Set.of("TO", "RG"));
+            while (i >= 0 && i < 8 && j >= 0 && j < 8) {
+                Casella cella = scacchiera[i][j];
+                if (cella.getPezzo() != null) {
+                    // 🔸 Se è un pezzo nemico e valido → scacco!
+                    if (controllaPezzo(cella, reCasella, Set.of("TO", "RG"))) {
+                        return true;
+                    } else {
+                        // 🔸 Se è un pezzo amico → la linea è bloccata
+                        break;
+                    }
+                }
+                i += dir[0];
+                j += dir[1];
+            }
         }
 
         return false;
@@ -150,32 +158,32 @@ public class GameEngineService
         int c = reCasella.getColumn();
         Casella[][] scacchiera = gamestate.getScacchiera();
 
-        // Alto-destra
-        for (int i = r - 1, j = c + 1; i >= 0 && j < 8; i--, j++) {
-            Casella cella = scacchiera[i][j];
-            if (cella.getPezzo() != null)
-                return controllaPezzo(cella, reCasella, Set.of("AL", "RG"));
-        }
+        // 🔹 Direzioni diagonali: alto-destra, alto-sinistra, basso-destra, basso-sinistra
+        int[][] directions = {
+                {-1, 1},  // alto-destra
+                {-1, -1}, // alto-sinistra
+                {1, 1},   // basso-destra
+                {1, -1}   // basso-sinistra
+        };
 
-        // Alto-sinistra
-        for (int i = r - 1, j = c - 1; i >= 0 && j >= 0; i--, j--) {
-            Casella cella = scacchiera[i][j];
-            if (cella.getPezzo() != null)
-                return controllaPezzo(cella, reCasella, Set.of("AL", "RG"));
-        }
+        for (int[] dir : directions) {
+            int i = r + dir[0];
+            int j = c + dir[1];
 
-        // Basso-destra
-        for (int i = r + 1, j = c + 1; i < 8 && j < 8; i++, j++) {
-            Casella cella = scacchiera[i][j];
-            if (cella.getPezzo() != null)
-                return controllaPezzo(cella, reCasella, Set.of("AL", "RG"));
-        }
-
-        // Basso-sinistra
-        for (int i = r + 1, j = c - 1; i < 8 && j >= 0; i++, j--) {
-            Casella cella = scacchiera[i][j];
-            if (cella.getPezzo() != null)
-                return controllaPezzo(cella, reCasella, Set.of("AL", "RG"));
+            while (i >= 0 && i < 8 && j >= 0 && j < 8) {
+                Casella cella = scacchiera[i][j];
+                if (cella.getPezzo() != null) {
+                    // 🔸 Se è un pezzo avversario valido → scacco
+                    if (controllaPezzo(cella, reCasella, Set.of("AL", "RG"))) {
+                        return true;
+                    } else {
+                        // 🔸 Se è un pezzo amico → blocca la direzione
+                        break;
+                    }
+                }
+                i += dir[0];
+                j += dir[1];
+            }
         }
 
         return false;
@@ -185,7 +193,7 @@ public class GameEngineService
     private boolean controllaPezzo(Casella attaccante, Casella reCasella, Set<String> codiciValidi) {
         Pezzo p = attaccante.getPezzo();
         return p != null
-                && !attaccante.getColorePezzo().equals(reCasella.getColorePezzo())
+                && attaccante.getColorePezzo()!=reCasella.getColorePezzo()
                 && codiciValidi.contains(p.getCodice());
     }
 
@@ -276,10 +284,10 @@ public class GameEngineService
         return true;
     }
 
-    public Casella cercaRe(ScacchieraGamestate gamestate) {
+    public Casella cercaRe(ScacchieraGamestate gamestate, Color color) {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                if (gamestate.getScacchiera()[i][j].getPezzo()!= null && gamestate.getScacchiera()[i][j].getPezzo().getCodice().equals("RE") && gamestate.getScacchiera()[i][j].getColorePezzo()==gamestate.getCurrentPlayer())
+                if (gamestate.getScacchiera()[i][j].getPezzo()!= null && gamestate.getScacchiera()[i][j].getPezzo().getCodice().equals("RE") && gamestate.getScacchiera()[i][j].getColorePezzo()==color)
                     return gamestate.getScacchiera()[i][j];
             }
         }
@@ -314,8 +322,10 @@ public class GameEngineService
                     scacchiera[i][j].setColorePezzo(casellaRe.getColorePezzo());
                     if (!isChecked(gamestate,casellaRe)) {
                         scacchiera[i][j].setColorePezzo(casellaScacco.getColorePezzo());
-                        if (isChecked(gamestate, scacchiera[i][j]))
+                        if (isChecked(gamestate, scacchiera[i][j])) {
+                            scacchiera[i][j].svuotaCasella();
                             return true;
+                        }
                     }
                     scacchiera[i][j].svuotaCasella();
                 }
