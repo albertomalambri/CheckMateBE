@@ -9,6 +9,7 @@ import com.generation.checkmatebe.model.repositories.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -41,16 +42,16 @@ public class MessageService
         User u = uRepo.findByUsername(username);
         return u.getMessaggiRicevuti().stream().map(m -> convertToDto(m)).toList();
     }
-    private MessageOutputDTO convertToDto(IntercomMessage m)
-    {
-        MessageOutputDTO dto = new MessageOutputDTO();
-        dto.setId(m.getId());
-        dto.setUsernameSender(m.getMittente().getUsername());
-        dto.setArchiviato(m.isArchiviato());
-        dto.setContent(m.getContent());
-        dto.setTitle(m.getTitolo());
-        dto.setTimeStamp(m.getTimestamp());
-        return dto;
+        private MessageOutputDTO convertToDto(IntercomMessage m)
+        {
+            MessageOutputDTO dto = new MessageOutputDTO();
+            dto.setId(m.getId());
+            dto.setUsernameSender(m.getMittente().getUsername());
+            dto.setArchiviato(m.isArchiviato());
+            dto.setContent(m.getContent());
+            dto.setTitle(m.getTitolo());
+            dto.setTimeStamp(m.getTimestamp());
+            return dto;
 
+        }
     }
-}
