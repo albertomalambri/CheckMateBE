@@ -263,22 +263,119 @@ public class GameEngineService
         int column = casella.getColumn();
         Casella casellaScacco = trovaPezzoCheDaScacco(gamestate,casella);
 
-        if ((row+1<8 && (scacchiera[row+1][column].getPezzo()==null || scacchiera[row+1][column].getColorePezzo() != casella.getColorePezzo()) && !isChecked(gamestate,scacchiera[row+1][column])))
-            return false;
-        if ((row-1>=0 && (scacchiera[row-1][column].getPezzo()==null || scacchiera[row-1][column].getColorePezzo() != casella.getColorePezzo()) && !isChecked(gamestate,scacchiera[row-1][column])))
-            return false;
-        if ((column+1<8 && (scacchiera[row][column+1].getPezzo()==null || scacchiera[row][column+1].getColorePezzo() != casella.getColorePezzo()) && !isChecked(gamestate,scacchiera[row][column+1])))
-            return false;
-        if ((column-1>=0 && (scacchiera[row][column-1].getPezzo()==null || scacchiera[row][column-1].getColorePezzo() != casella.getColorePezzo()) && !isChecked(gamestate,scacchiera[row][column-1])))
-            return false;
-        if ((row+1<8 && column-1>=0 && (scacchiera[row+1][column-1].getPezzo()==null || scacchiera[row+1][column-1].getColorePezzo() != casella.getColorePezzo()) && !isChecked(gamestate,scacchiera[row+1][column-1])))
-            return false;
-        if ((row+1<8 && column+1<8 && (scacchiera[row+1][column+1].getPezzo()==null || scacchiera[row+1][column+1].getColorePezzo() != casella.getColorePezzo()) && !isChecked(gamestate,scacchiera[row+1][column+1])))
-            return false;
-        if ((row-1>=0 && column+1<8 && (scacchiera[row-1][column+1].getPezzo()==null || scacchiera[row-1][column+1].getColorePezzo() != casella.getColorePezzo()) && !isChecked(gamestate,scacchiera[row-1][column+1])))
-            return false;
-        if ((row-1>=0 && column-1>=0 && (scacchiera[row-1][column-1].getPezzo()==null || scacchiera[row-1][column-1].getColorePezzo() != casella.getColorePezzo()) && !isChecked(gamestate,scacchiera[row-1][column-1])))
-            return false;
+        if ((row+1<8 && (scacchiera[row+1][column].getPezzo()==null || scacchiera[row+1][column].getColorePezzo() != casella.getColorePezzo()) )) {
+            Color colore = scacchiera[row+1][column].getColorePezzo();
+            scacchiera[row+1][column].setColorePezzo(gamestate.getCurrentPlayer());
+            if ( !isChecked(gamestate,scacchiera[row+1][column])) {
+                if (scacchiera[row+1][column].getColorePezzo()==BIANCO) {
+                    scacchiera[row + 1][column].setColorePezzo(NERO);
+                    return false;
+                }
+                else {
+                    scacchiera[row + 1][column].setColorePezzo(BIANCO);
+                    return false;
+                }
+            }
+            scacchiera[row+1][column].setColorePezzo(colore);
+        }
+        if ((row-1>=0 && (scacchiera[row-1][column].getPezzo()==null || scacchiera[row-1][column].getColorePezzo() != casella.getColorePezzo()))) {
+            Color colore = scacchiera[row-1][column].getColorePezzo();
+            scacchiera[row - 1][column].setColorePezzo(gamestate.getCurrentPlayer());
+            if (!isChecked(gamestate, scacchiera[row - 1][column])) {
+                if (scacchiera[row - 1][column].getColorePezzo() == BIANCO) {
+                    scacchiera[row - 1][column].setColorePezzo(NERO);
+                    return false;
+                } else {
+                    scacchiera[row - 1][column].setColorePezzo(BIANCO);
+                    return false;
+                }
+            }
+            scacchiera[row-1][column].setColorePezzo(colore);
+        }
+        if ((column+1<8 && (scacchiera[row][column+1].getPezzo()==null || scacchiera[row][column+1].getColorePezzo() != casella.getColorePezzo()) )) {
+            Color colore = scacchiera[row][column+1].getColorePezzo();
+            scacchiera[row ][column +1].setColorePezzo(gamestate.getCurrentPlayer());
+            if (!isChecked(gamestate, scacchiera[row ][column+1])) {
+                if (scacchiera[row ][column+1].getColorePezzo() == BIANCO) {
+                    scacchiera[row ][column+1].setColorePezzo(NERO);
+                    return false;
+                } else {
+                    scacchiera[row ][column+1].setColorePezzo(BIANCO);
+                    return false;
+                }
+            }
+            scacchiera[row][column+1].setColorePezzo(colore);
+        }
+        if ((column-1>=0 && (scacchiera[row][column-1].getPezzo()==null || scacchiera[row][column-1].getColorePezzo() != casella.getColorePezzo()) )) {
+            Color colore = scacchiera[row][column-1].getColorePezzo();
+            scacchiera[row][column - 1].setColorePezzo(gamestate.getCurrentPlayer());
+            if (!isChecked(gamestate, scacchiera[row][column - 1])) {
+                if (scacchiera[row][column - 1].getColorePezzo() == BIANCO) {
+                    scacchiera[row][column - 1].setColorePezzo(NERO);
+                    return false;
+                } else {
+                    scacchiera[row][column - 1].setColorePezzo(BIANCO);
+                    return false;
+                }
+            }
+            scacchiera[row][column-1].setColorePezzo(colore);
+        }
+        if ((row+1<8 && column-1>=0 && (scacchiera[row+1][column-1].getPezzo()==null || scacchiera[row+1][column-1].getColorePezzo() != casella.getColorePezzo()) )) {
+            Color colore = scacchiera[row+1][column-1].getColorePezzo();
+            scacchiera[row + 1][column - 1].setColorePezzo(gamestate.getCurrentPlayer());
+            if (!isChecked(gamestate, scacchiera[row + 1][column - 1])) {
+                if (scacchiera[row + 1][column - 1].getColorePezzo() == BIANCO) {
+                    scacchiera[row + 1][column - 1].setColorePezzo(NERO);
+                    return false;
+                } else {
+                    scacchiera[row + 1][column - 1].setColorePezzo(BIANCO);
+                    return false;
+                }
+            }
+            scacchiera[row+1][column-1].setColorePezzo(colore);
+        }
+        if ((row+1<8 && column+1<8 && (scacchiera[row+1][column+1].getPezzo()==null || scacchiera[row+1][column+1].getColorePezzo() != casella.getColorePezzo()) )) {
+            Color colore = scacchiera[row+1][column+1].getColorePezzo();
+            scacchiera[row + 1][column + 1].setColorePezzo(gamestate.getCurrentPlayer());
+            if (!isChecked(gamestate, scacchiera[row + 1][column + 1])) {
+                if (scacchiera[row + 1][column + 1].getColorePezzo() == BIANCO) {
+                    scacchiera[row + 1][column + 1].setColorePezzo(NERO);
+                    return false;
+                } else {
+                    scacchiera[row + 1][column + 1].setColorePezzo(BIANCO);
+                    return false;
+                }
+            }
+            scacchiera[row+1][column+1].setColorePezzo(colore);
+        }
+        if ((row-1>=0 && column+1<8 && (scacchiera[row-1][column+1].getPezzo()==null || scacchiera[row-1][column+1].getColorePezzo() != casella.getColorePezzo()) )) {
+            Color colore = scacchiera[row-1][column+1].getColorePezzo();
+            scacchiera[row - 1][column + 1].setColorePezzo(gamestate.getCurrentPlayer());
+            if (!isChecked(gamestate, scacchiera[row - 1][column + 1])) {
+                if (scacchiera[row - 1][column + 1].getColorePezzo() == BIANCO) {
+                    scacchiera[row - 1][column + 1].setColorePezzo(NERO);
+                    return false;
+                } else {
+                    scacchiera[row - 1][column + 1].setColorePezzo(BIANCO);
+                    return false;
+                }
+            }
+            scacchiera[row-1][column+1].setColorePezzo(colore);
+        }
+        if ((row-1>=0 && column-1>=0 && (scacchiera[row-1][column-1].getPezzo()==null || scacchiera[row-1][column-1].getColorePezzo() != casella.getColorePezzo()) )) {
+            Color colore = scacchiera[row-1][column-1].getColorePezzo();
+            scacchiera[row - 1][column - 1].setColorePezzo(gamestate.getCurrentPlayer());
+            if (!isChecked(gamestate, scacchiera[row - 1][column - 1])) {
+                if (scacchiera[row - 1][column - 1].getColorePezzo() == BIANCO) {
+                    scacchiera[row - 1][column - 1].setColorePezzo(NERO);
+                    return false;
+                } else {
+                    scacchiera[row - 1][column - 1].setColorePezzo(BIANCO);
+                    return false;
+                }
+            }
+            scacchiera[row-1][column-1].setColorePezzo(colore);
+        }
         if (isChecked(gamestate,casellaScacco) || controllaPezzoCheProteggeDaScacco(gamestate, casella, casellaScacco))
             return false;
         return true;

@@ -171,7 +171,8 @@ public enum Pezzo {
                 int rowStart = m.getStart().getRow();
                 int colEnd = m.getEnd().getColumn();
                 int rowEnd = m.getEnd().getRow();
-
+                boolean straight = isStraightPathClear(gameState, rowStart, colStart, rowEnd, colEnd);
+                boolean diagonal = isDiagonalPathClear(gameState, rowStart, colStart, rowEnd, colEnd);
                 
                 return (isStraightPathClear(gameState, rowStart, colStart, rowEnd, colEnd) ||
                         isDiagonalPathClear(gameState, rowStart, colStart, rowEnd, colEnd)) &&
@@ -301,6 +302,9 @@ public enum Pezzo {
         return true;
     }
     boolean isDiagonalPathClear(ScacchieraGamestate gameState, int rowStart, int colStart, int rowEnd, int colEnd) {
+        if (Math.abs(rowEnd - rowStart) != Math.abs(colEnd - colStart)) {
+            return false;
+        }
         int rowStep = (rowEnd > rowStart) ? 1 : -1;
         int colStep = (colEnd > colStart) ? 1 : -1;
 
