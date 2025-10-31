@@ -1,9 +1,9 @@
 package com.generation.checkmatebe.dtos;
 
+import java.time.LocalDateTime;
+
 import lombok.Getter;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Setter

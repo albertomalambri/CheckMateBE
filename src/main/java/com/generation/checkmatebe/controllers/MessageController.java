@@ -2,6 +2,7 @@ package com.generation.checkmatebe.controllers;
 
 import com.generation.checkmatebe.dtos.MessageInputDTO;
 import com.generation.checkmatebe.dtos.MessageOutputDTO;
+import com.generation.checkmatebe.model.entities.IntercomMessage;
 import com.generation.checkmatebe.model.repositories.MessageRepo;
 import com.generation.checkmatebe.model.repositories.UserRepo;
 import com.generation.checkmatebe.services.MessageService;
