@@ -36,6 +36,9 @@ public class UserController
         String tokenUtente = userService.register(dto);
 
         Cookie cookie = new Cookie("token", tokenUtente);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false);
+        cookie.setPath("/");
         cookie.setMaxAge(3600);
         response.addCookie(cookie);
     }

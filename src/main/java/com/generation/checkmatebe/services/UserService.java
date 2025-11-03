@@ -29,6 +29,8 @@ public class UserService
             throw new InvalidCredentials("Password not valid");
         }
 
+        if (repo.findByUsername(RegisterDTO.getUsername()) != null)
+            throw new InvalidCredentials("Username not valid");
         //Creazione dell’utente
         User user = new User();
         user.setUsername(RegisterDTO.getUsername());

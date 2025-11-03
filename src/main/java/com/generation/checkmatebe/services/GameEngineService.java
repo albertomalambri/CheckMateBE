@@ -395,7 +395,8 @@ public class GameEngineService
             }
             scacchiera[row-1][column-1].setColorePezzo(colore);
         }
-        if (isChecked(gamestate,casellaScacco) || controllaPezzoCheProteggeDaScacco(gamestate, casella, casellaScacco))
+
+        if (controllaPezzoCheProteggeDaScacco(gamestate, casella, casellaScacco) || (isChecked(gamestate,casellaScacco) && trovaPezzoCheDaScacco(gamestate,casellaScacco) != null))
             return false;
         return true;
     }
@@ -438,7 +439,7 @@ public class GameEngineService
                     scacchiera[i][j].setColorePezzo(casellaRe.getColorePezzo());
                     if (!isChecked(gamestate,casellaRe)) {
                         scacchiera[i][j].setColorePezzo(casellaScacco.getColorePezzo());
-                        if (isChecked(gamestate, scacchiera[i][j])) {
+                        if (trovaPezzoCheDaScacco(gamestate, scacchiera[i][j])!=null) {
                             scacchiera[i][j].svuotaCasella();
                             return true;
                         }
