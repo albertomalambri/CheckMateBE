@@ -56,18 +56,20 @@ public class PartitaController {
     }
 
 
-//    @GetMapping("/stato/{id}")
-//    public ResponseEntity<PartitaDTO> getStatoScacchieraFineGame(@PathVariable Long id, @CookieValue(required = false) String token) {
-//        try {
-//            if(token == null)
-//                return null;
-//            PartitaDTO risultatoDTO = gameStateService.fineGamestate(userv.findUserByToken(token).getUsername(), id);
-//            return ResponseEntity.ok(risultatoDTO);
-//
-//        } catch (EntityNotFoundException e) {
-//            return ResponseEntity.notFound().build();
-//        }
-//    }
+    @GetMapping("/stato/{id}")
+    public ResponseEntity<PartitaDTO> getStatoScacchieraFineGame(@PathVariable Long id, HttpServletRequest request) {
+        try {
+
+            Optional<User> users = Arrays.stream(request.getCookies()).filter(cookie -> cookie.getName().equalsIgnoreCase("token")).map(token -> userv.findUserByToken(token.getValue())).findFirst();
+            if (users.isEmpty())
+                return null;
+            PartitaDTO risultatoDTO = gameStateService.fineGamestate(users.get(), id);
+            return ResponseEntity.ok(risultatoDTO);
+
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
     @PostMapping("/mossa/{id}")
     public ResponseEntity<ScacchieraGamestateDTO> eseguiMossa(@PathVariable Long id, @RequestBody MossaDTO mossa) {

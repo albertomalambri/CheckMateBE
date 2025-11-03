@@ -1,6 +1,7 @@
 package com.generation.checkmatebe.services;
 
 import com.generation.checkmatebe.dtos.CasellaDTO;
+import com.generation.checkmatebe.dtos.MossaDTO;
 import com.generation.checkmatebe.dtos.PartitaDTO;
 import com.generation.checkmatebe.dtos.ScacchieraGamestateDTO;
 import com.generation.checkmatebe.model.entities.*;
@@ -13,10 +14,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -110,9 +108,54 @@ public class GameStateService
         return dto;
     }
 
-//    public PartitaDTO fineGamestate(String username, Long id) {
-//        User user = uRepo.findByUsername(username);
-//        Partita game = user.getPartite().stream().filter(partita -> partita==pRepo.findPartitaById(id)).toList().getFirst();
-//        game.se
-//    }
+    public PartitaDTO fineGamestate(User user, Long id) {
+        Optional<ScacchieraGamestate> gamestate = repo.findById(id);
+        Partita game;
+        if (gamestate.isPresent()) {
+            game = user.getPartite().stream().filter(partita -> partita == pRepo.findPartitaById(gamestate.get().getChessboard().getId())).toList().get(0);
+            game.setMosse(gamestate.get().getPreviousMoves());
+            if (gamestate.get().getCurrentPlayer() == Color.NERO)
+                game.setRisultato(game.getGiocatoreBianco());
+            else
+                game.setRisultato(game.getGiocatoreNero());
+            return convertPartitaToDto(game);
+        }
+        else
+            return null;
+
+
+    }
+
+    private PartitaDTO convertPartitaToDto(Partita game) {
+        PartitaDTO dto = new PartitaDTO();
+        dto.setId(game.getId());
+        dto.setGiocatoreBianco(game.getGiocatoreBianco());
+        dto.setGiocatoreNero(game.getGiocatoreNero());
+        dto.setRisultato(game.getRisultato());
+        dto.setMosse(convertiMosseDto(game.getGamestate().getPreviousMoves()));
+//        dto.setStatoFinaleFEN();
+        return dto;
+    }
+
+    private List<MossaDTO> convertiMosseDto(LinkedList<Mossa> previousMoves) {
+        List<MossaDTO> lista = new ArrayList<>();
+        for (Mossa m : previousMoves) {
+            MossaDTO dto = new MossaDTO();
+            dto.setNumero(m.getTurno());
+            dto.setDa(m.getStart().getNomeCasella());
+            dto.setA(m.getEnd().getNomeCasella());
+            dto.setPezzo(m.getPezzo().getCodice());
+            lista.add(dto);
+        }
+        return lista;
+    }
+
+//    private int numero;
+//    private String da; // "e2"
+//    private String a;  // "e4"
+//    private String pezzo; // "pedone", "cavallo", ecc.
+//    private boolean cattura;
+//    private boolean arrocco;
+//    private boolean promozione;
+
 }
