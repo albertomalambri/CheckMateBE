@@ -1,13 +1,14 @@
 package com.generation.checkmatebe.services;
 
 import com.generation.checkmatebe.dtos.CasellaDTO;
+import com.generation.checkmatebe.dtos.PartitaDTO;
 import com.generation.checkmatebe.dtos.ScacchieraGamestateDTO;
-import com.generation.checkmatebe.model.entities.Casella;
-import com.generation.checkmatebe.model.entities.Mossa;
-import com.generation.checkmatebe.model.entities.ScacchieraGamestate;
+import com.generation.checkmatebe.model.entities.*;
 import com.generation.checkmatebe.model.enums.Color;
 import com.generation.checkmatebe.model.enums.Pezzo;
+import com.generation.checkmatebe.model.repositories.PartitaRepo;
 import com.generation.checkmatebe.model.repositories.ScacchieraRepository;
+import com.generation.checkmatebe.model.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,12 +16,20 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class GameStateService
 {
     @Autowired
     private ScacchieraRepository repo;
+
+    @Autowired
+    private PartitaRepo pRepo;
+
+    @Autowired
+    private UserRepository uRepo;
 
     public List<CasellaDTO> findAllAsDto(ScacchieraGamestate gameState) {
 //        ScacchieraGamestate gameState = repo.findById(id)
@@ -42,7 +51,7 @@ public class GameStateService
         }
         return caselleDTO;
     }
-    public ScacchieraGamestateDTO inizializzaGamestate()
+    public ScacchieraGamestateDTO inizializzaGamestate(Long id)
     {
         ScacchieraGamestate gameState = new ScacchieraGamestate();
         Casella[][] scacchiera = new Casella[8][8];
@@ -56,6 +65,7 @@ public class GameStateService
         }
         gameState.setScacchiera(scacchiera);
         gameState.setPreviousMoves(previousMoves);
+        gameState.setChessboard(pRepo.getReferenceById(id));
         repo.save(gameState);
         return convertToDtoScacchiera(gameState);
     }
@@ -96,6 +106,13 @@ public class GameStateService
         dto.setCurrentPlayer(gamestate.getCurrentPlayer());
         dto.setCheck(gamestate.isCheck());
         dto.setCheckMate(gamestate.isCheckMate());
+        dto.setStallo(gamestate.isStallo());
         return dto;
     }
+
+//    public PartitaDTO fineGamestate(String username, Long id) {
+//        User user = uRepo.findByUsername(username);
+//        Partita game = user.getPartite().stream().filter(partita -> partita==pRepo.findPartitaById(id)).toList().getFirst();
+//        game.se
+//    }
 }

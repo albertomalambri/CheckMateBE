@@ -3,12 +3,15 @@ package com.generation.checkmatebe.services;
 import com.generation.checkmatebe.dtos.ScacchieraGamestateDTO;
 import com.generation.checkmatebe.model.entities.Casella;
 import com.generation.checkmatebe.model.entities.Mossa;
+import com.generation.checkmatebe.model.entities.Partita;
 import com.generation.checkmatebe.model.entities.ScacchieraGamestate;
 
 import com.generation.checkmatebe.dtos.MossaDTO;
 import com.generation.checkmatebe.model.enums.Color;
 import com.generation.checkmatebe.model.enums.Pezzo;
+import com.generation.checkmatebe.model.repositories.PartitaRepo;
 import com.generation.checkmatebe.model.repositories.ScacchieraRepository;
+import com.generation.checkmatebe.model.repositories.UserRepository;
 import com.generation.checkmatebe.utilities.ChessUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,15 +27,26 @@ import static com.generation.checkmatebe.model.enums.Color.NERO;
 public class GameEngineService
 {
     @Autowired
-    ScacchieraRepository ScacchieraRepository;
+    private ScacchieraRepository ScacchieraRepository;
 
     @Autowired
-    GameStateService gameStateService;
+    private GameStateService gameStateService;
 
+    @Autowired
+    private UserRepository urepo;
 
-    public ScacchieraGamestateDTO inizializzaGamestate()
+    @Autowired
+    private PartitaRepo pRepo;
+
+    public ScacchieraGamestateDTO inizializzaGamestate(String username)
     {
-        return gameStateService.inizializzaGamestate();
+        Partita game = new Partita();
+        game.setGiocatoreBianco(username);
+        game.setGiocatoreNero(username);
+        game.setGame(urepo.findByUsername(username));
+        game.setTipoPartita("Solo game");
+        pRepo.save(game);
+        return gameStateService.inizializzaGamestate(game.getId());
     }
 
     @Transactional
@@ -51,6 +65,7 @@ public class GameEngineService
         m.setEnd(currentGameState.getScacchiera()[rowEnd][colEnd]);
         m.setPezzo(Pezzo.getByCodice(dto.getPezzo().toUpperCase())); //PE,CA,AL,RE,RG,TO
         m.setCattura(dto.isCattura());
+
         if(m.getStart().getColorePezzo()== currentGameState.getCurrentPlayer() && m.getPezzo().mossaValida(currentGameState,m))
         {
             ScacchieraGamestate nextGameState = currentGameState;
@@ -88,7 +103,7 @@ public class GameEngineService
                     nextGameState.setCheck(false);
                     nextGameState.setCheckMate(false);
                 }
-                if (verificaStallo(nextGameState))
+                if (verificaStallo(nextGameState,scacchiera[rowEnd][colEnd]))
                     nextGameState.setStallo(false);
                 else
                     nextGameState.setStallo(true);
@@ -136,6 +151,8 @@ public class GameEngineService
             while (i >= 0 && i < 8 && j >= 0 && j < 8) {
                 Casella cella = scacchiera[i][j];
                 if (cella.getPezzo() != null) {
+                    if ((Math.abs(i-r)==1 || Math.abs(j-c)==1) && controllaPezzo(cella, reCasella, Set.of("RE")))
+                        return true;
                     // 🔸 Se è un pezzo nemico e valido → scacco!
                     if (controllaPezzo(cella, reCasella, Set.of("TO", "RG"))) {
                         return true;
@@ -173,8 +190,10 @@ public class GameEngineService
             while (i >= 0 && i < 8 && j >= 0 && j < 8) {
                 Casella cella = scacchiera[i][j];
                 if (cella.getPezzo() != null) {
+                    if (Math.abs(i-r)==1 && Math.abs(j-c)==1 && controllaPezzo(cella, reCasella, Set.of("RE")))
+                        return true;
                     // 🔸 Se è un pezzo avversario valido → scacco
-                    if (controllaPezzo(cella, reCasella, Set.of("AL", "RG"))) {
+                    else if (controllaPezzo(cella, reCasella, Set.of("AL", "RG"))) {
                         return true;
                     } else {
                         // 🔸 Se è un pezzo amico → blocca la direzione
@@ -394,7 +413,7 @@ public class GameEngineService
     public Casella trovaPezzoCheDaScacco(ScacchieraGamestate gamestate, Casella casella) {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                if (gamestate.getScacchiera()[i][j].getColorePezzo()!= null && gamestate.getScacchiera()[i][j].getColorePezzo()!=gamestate.getCurrentPlayer() && !gamestate.getScacchiera()[i][j].getPezzo().getCodice().equals("RE")) {
+                if (gamestate.getScacchiera()[i][j].getPezzo()!=null && gamestate.getScacchiera()[i][j].getColorePezzo()!= null && gamestate.getScacchiera()[i][j].getColorePezzo()!=gamestate.getCurrentPlayer() && !gamestate.getScacchiera()[i][j].getPezzo().getCodice().equals("RE")) {
                    Mossa mossa = new Mossa();
                    mossa.setStart(gamestate.getScacchiera()[i][j]);
                    mossa.setEnd(casella);
@@ -431,22 +450,25 @@ public class GameEngineService
         return false;
     }
     //Return true se trova una mossa possibile, sennò false e quindi è stallo
-    public boolean verificaStallo(ScacchieraGamestate gamestate) {
+    public boolean verificaStallo(ScacchieraGamestate gamestate, Casella casellaMossaQuestoTurno) {
         Casella [][] scacchiera = gamestate.getScacchiera();
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                if (scacchiera[i][j].getColorePezzo()==null) {
-                    if (gamestate.getCurrentPlayer()== BIANCO)
-                        scacchiera[i][j].setColorePezzo(NERO);
-                    else
-                        scacchiera[i][j].setColorePezzo(BIANCO);
+                if (scacchiera[i][j].getPezzo()==null) {
+                    scacchiera[i][j].setColorePezzo(casellaMossaQuestoTurno.getColorePezzo());
                     if (isChecked(gamestate,scacchiera[i][j])) {
-                        scacchiera[i][j].setColorePezzo(null);
-                        return true;
+                        if (casellaMossaQuestoTurno.getColorePezzo()==BIANCO)
+                            scacchiera[i][j].setColorePezzo(NERO);
+                        else
+                            scacchiera[i][j].setColorePezzo(BIANCO);
+                        if (!isChecked(gamestate,scacchiera[i][j])) {
+                            scacchiera[i][j].setColorePezzo(null);
+                            return true;
+                        }
                     }
                     scacchiera[i][j].setColorePezzo(null);
 
-                } else if (scacchiera[i][j].getColorePezzo()!=gamestate.getCurrentPlayer()) {
+                } else if (scacchiera[i][j].getColorePezzo()==casellaMossaQuestoTurno.getColorePezzo()) {
                     if (isChecked(gamestate, scacchiera[i][j]))
                         return true;
                 }

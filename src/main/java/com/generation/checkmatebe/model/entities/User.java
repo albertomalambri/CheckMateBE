@@ -19,8 +19,8 @@ import java.util.UUID;
 public class User
 {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     //autenticazione utente
     //da implementare: email automatiche/di registrazione o recupero password, sponsorizzazione tornei o eventi
@@ -47,8 +47,11 @@ public class User
     private Role role = Role.USER;
     private String token;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "destinatario")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "destinatario",cascade = CascadeType.ALL,orphanRemoval = true)
     private Set<IntercomMessage> messaggiRicevuti;
+
+    @OneToMany(mappedBy = "game",fetch = FetchType.EAGER,cascade = CascadeType.ALL,orphanRemoval = true)
+    private Set<Partita> partite;
 
     public User() {
     }

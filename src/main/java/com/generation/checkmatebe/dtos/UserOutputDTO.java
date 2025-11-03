@@ -15,7 +15,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class UserOutputDTO
 {
-    private long id;
+    private UUID id;
     private String username;
     private String email;
     private Rank rank;

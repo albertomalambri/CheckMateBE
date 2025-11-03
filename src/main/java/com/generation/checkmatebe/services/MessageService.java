@@ -5,11 +5,10 @@ import com.generation.checkmatebe.dtos.MessageOutputDTO;
 import com.generation.checkmatebe.model.entities.IntercomMessage;
 import com.generation.checkmatebe.model.entities.User;
 import com.generation.checkmatebe.model.repositories.MessageRepo;
-import com.generation.checkmatebe.model.repositories.UserRepo;
+import com.generation.checkmatebe.model.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -19,7 +18,7 @@ public class MessageService
     @Autowired
     MessageRepo mRepo;
     @Autowired
-    UserRepo uRepo;
+    UserRepository uRepo;
 
     public void convertToMessageAndSave(MessageInputDTO dto)
     {

@@ -2,9 +2,8 @@ package com.generation.checkmatebe.controllers;
 
 import com.generation.checkmatebe.dtos.MessageInputDTO;
 import com.generation.checkmatebe.dtos.MessageOutputDTO;
-import com.generation.checkmatebe.model.entities.IntercomMessage;
 import com.generation.checkmatebe.model.repositories.MessageRepo;
-import com.generation.checkmatebe.model.repositories.UserRepo;
+import com.generation.checkmatebe.model.repositories.UserRepository;
 import com.generation.checkmatebe.services.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +20,7 @@ public class MessageController
     @Autowired
     MessageRepo mRepo;
     @Autowired
-    UserRepo uRepo;
+    UserRepository uRepo;
 
 
     @PostMapping

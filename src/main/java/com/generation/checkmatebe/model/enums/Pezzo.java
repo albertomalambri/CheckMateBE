@@ -45,9 +45,8 @@ public enum Pezzo {
                             return true;
                         }
                     }
-                    else {
+                    else
                         return (m.getEnd().getColorePezzo() != m.getStart().getColorePezzo());
-                    }
                 }
                 //avanzamento base pedone
                 return colEnd == colStart && rowEnd == rowStart - 1;
@@ -57,9 +56,11 @@ public enum Pezzo {
                 if (colEnd == colStart - 1 && rowEnd == rowStart + 1 || colEnd == colStart + 1 && rowEnd == rowStart + 1) {
                     if(m.getEnd().getPezzo()==null) {
                         if (rowStart==4
-                                && (scacchiera[rowStart][colStart+1].getPezzo().getCodice().equals("PE")
+                                && (scacchiera[rowStart][colStart+1].getPezzo()!=null
+                                && scacchiera[rowStart][colStart+1].getPezzo().getCodice().equals("PE")
                                 && scacchiera[rowStart][colStart+1].getColorePezzo()==Color.BIANCO)
-                                || (scacchiera[rowStart][colStart-1].getPezzo().getCodice().equals("PE")
+                                || (scacchiera[rowStart][colStart-1].getPezzo()!=null
+                                && scacchiera[rowStart][colStart-1].getPezzo().getCodice().equals("PE")
                                 && scacchiera[rowStart][colStart-1].getColorePezzo()==Color.BIANCO)
                                 && gameState.getPreviousMoves().getLast().getEnd().getRow()==4
                                 && gameState.getPreviousMoves().getLast().getStart().getRow()==6) {
@@ -67,7 +68,8 @@ public enum Pezzo {
                             return true;
                         }
                     }
-                    return m.getEnd().getColorePezzo() != m.getStart().getColorePezzo();
+                    else
+                        return m.getEnd().getColorePezzo() != m.getStart().getColorePezzo();
                 }
                 //avanzamento base pedone
                 return colEnd == colStart && rowEnd == rowStart + 1;
@@ -171,12 +173,16 @@ public enum Pezzo {
                 int rowStart = m.getStart().getRow();
                 int colEnd = m.getEnd().getColumn();
                 int rowEnd = m.getEnd().getRow();
-                boolean straight = isStraightPathClear(gameState, rowStart, colStart, rowEnd, colEnd);
-                boolean diagonal = isDiagonalPathClear(gameState, rowStart, colStart, rowEnd, colEnd);
-                
-                return (isStraightPathClear(gameState, rowStart, colStart, rowEnd, colEnd) ||
-                        isDiagonalPathClear(gameState, rowStart, colStart, rowEnd, colEnd)) &&
-                        m.getEnd().getColorePezzo() != m.getStart().getColorePezzo();
+//                boolean straight = isStraightPathClear(gameState, rowStart, colStart, rowEnd, colEnd);
+//                boolean diagonal = isDiagonalPathClear(gameState, rowStart, colStart, rowEnd, colEnd);
+
+                if (m.getEnd().getPezzo()==null)
+                    return (isStraightPathClear(gameState, rowStart, colStart, rowEnd, colEnd) ||
+                        isDiagonalPathClear(gameState, rowStart, colStart, rowEnd, colEnd));
+                else
+                    return (isStraightPathClear(gameState, rowStart, colStart, rowEnd, colEnd) ||
+                            isDiagonalPathClear(gameState, rowStart, colStart, rowEnd, colEnd)) &&
+                            m.getEnd().getColorePezzo() != m.getStart().getColorePezzo();
             }
         },
 
@@ -273,7 +279,9 @@ public enum Pezzo {
                 return false;
             //non finisce dove c'è altro pezzo stesso colore
             //il colore consiglio di salvarlo dentro oggetto Posizione//es proprietà posizione: enums.Pezzo - ColorePezzo - Riga - Colonna
-            return casellaEnd.getColorePezzo() != m.getStart().getColorePezzo();
+            if (casellaEnd.getPezzo()!=null)
+                return casellaEnd.getColorePezzo() != m.getStart().getColorePezzo();
+            return true;
         }
 
         //metodo astratto che viene sovrascritto da ogni pezzo

@@ -97,4 +97,13 @@ public class UserController
     }
 
 
+    @PostMapping("/logout")
+    public void logout(HttpServletResponse response) {
+        Cookie cookie = new Cookie("token", null);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false);
+        cookie.setPath("/");
+        cookie.setMaxAge(0); // elimina subito
+        response.addCookie(cookie);
+    }
 }
