@@ -438,6 +438,7 @@ public class GameEngineService
                     scacchiera[i][j].setPezzo(Pezzo.PEDONE);
                     scacchiera[i][j].setColorePezzo(casellaRe.getColorePezzo());
                     if (!isChecked(gamestate,casellaRe)) {
+                        scacchiera[i][j].svuotaCasella();
                         scacchiera[i][j].setColorePezzo(casellaScacco.getColorePezzo());
                         if (trovaPezzoCheDaScacco(gamestate, scacchiera[i][j])!=null) {
                             scacchiera[i][j].svuotaCasella();

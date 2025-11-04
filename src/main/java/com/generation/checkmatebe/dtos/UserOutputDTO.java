@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
@@ -23,6 +24,7 @@ public class UserOutputDTO
     private int partiteGiocate;
     private double winRate;
     private Role role;
+    private Set<PartitaDTO> partite;
 
     public int getRoleAsInt()
     {

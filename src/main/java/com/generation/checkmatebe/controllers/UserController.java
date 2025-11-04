@@ -9,15 +9,14 @@ import com.generation.checkmatebe.model.enums.Rank;
 import com.generation.checkmatebe.model.repositories.UserRepository;
 import com.generation.checkmatebe.services.UserService;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 @RestController
@@ -86,11 +85,12 @@ public class UserController
 
 
     @GetMapping("/userinformation")
-    public UserOutputDTO getUserInfo(@CookieValue(required = false) String token)
+    public UserOutputDTO getUserInfo(HttpServletRequest request)
     {
-        if(token == null)
+        Optional<User> users = Arrays.stream(request.getCookies()).filter(cookie -> cookie.getName().equalsIgnoreCase("token")).map(token -> userService.findUserByToken(token.getValue())).findFirst();
+        if (users.isEmpty())
             return null;
-        return userService.readUserDTO(token);
+        return userService.readUserDTO(users.get().getToken());
     }
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)

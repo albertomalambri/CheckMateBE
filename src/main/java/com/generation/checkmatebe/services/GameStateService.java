@@ -64,7 +64,10 @@ public class GameStateService
         gameState.setScacchiera(scacchiera);
         gameState.setPreviousMoves(previousMoves);
         gameState.setChessboard(pRepo.getReferenceById(id));
+        Partita p = pRepo.getReferenceById(id);
+        p.setGamestate(gameState);
         repo.save(gameState);
+        pRepo.save(p);
         return convertToDtoScacchiera(gameState);
     }
     private void setupCasella(Casella casella)
@@ -114,10 +117,16 @@ public class GameStateService
         if (gamestate.isPresent()) {
             game = user.getPartite().stream().filter(partita -> partita == pRepo.findPartitaById(gamestate.get().getChessboard().getId())).toList().get(0);
             game.setMosse(gamestate.get().getPreviousMoves());
-            if (gamestate.get().getCurrentPlayer() == Color.NERO)
-                game.setRisultato(game.getGiocatoreBianco());
-            else
-                game.setRisultato(game.getGiocatoreNero());
+            if (gamestate.get().isCheckMate()) {
+                if (gamestate.get().getCurrentPlayer() == Color.NERO)
+                    game.setRisultato("BIANCO");
+                else
+                    game.setRisultato("NERO");
+            }
+            user.getPartite().add(game);
+            user.setPartiteGiocate(user.getPartiteGiocate()+1);
+            pRepo.save(game);
+            uRepo.save(user);
             return convertPartitaToDto(game);
         }
         else
@@ -126,12 +135,13 @@ public class GameStateService
 
     }
 
-    private PartitaDTO convertPartitaToDto(Partita game) {
+    public PartitaDTO convertPartitaToDto(Partita game) {
         PartitaDTO dto = new PartitaDTO();
         dto.setId(game.getId());
         dto.setGiocatoreBianco(game.getGiocatoreBianco());
         dto.setGiocatoreNero(game.getGiocatoreNero());
         dto.setRisultato(game.getRisultato());
+        game.setGamestate(repo.findByChessboard_Id(game.getId()).get());
         dto.setMosse(convertiMosseDto(game.getGamestate().getPreviousMoves()));
 //        dto.setStatoFinaleFEN();
         return dto;

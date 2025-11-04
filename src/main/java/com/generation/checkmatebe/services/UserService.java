@@ -1,9 +1,11 @@
 package com.generation.checkmatebe.services;
 
 import com.generation.checkmatebe.dtos.LoginDTO;
+import com.generation.checkmatebe.dtos.PartitaDTO;
 import com.generation.checkmatebe.dtos.RegisterDTO;
 import com.generation.checkmatebe.dtos.UserOutputDTO;
 import com.generation.checkmatebe.exceptions.InvalidCredentials;
+import com.generation.checkmatebe.model.entities.Partita;
 import com.generation.checkmatebe.model.entities.User;
 import com.generation.checkmatebe.model.enums.Rank;
 import com.generation.checkmatebe.model.enums.Role;
@@ -12,7 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.apache.commons.codec.digest.DigestUtils;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -21,6 +25,9 @@ public class UserService
 
     @Autowired
     private UserRepository repo;
+
+    @Autowired
+    private GameStateService srepo;
 
     public String register(RegisterDTO RegisterDTO) {
         //Controllo della password sul DTO
@@ -90,6 +97,11 @@ public class UserService
         dto.setPartiteGiocate(u.getPartiteGiocate());
         dto.setWinRate(u.getWinRate());
         dto.setRole(u.getRole());
+        Set<PartitaDTO> pdto = new HashSet<>();
+        for (Partita p : u.getPartite()) {
+            pdto.add(srepo.convertPartitaToDto(p));
+        }
+        dto.setPartite(pdto);
         return dto;
     }
 }
