@@ -52,12 +52,28 @@ public class GameEngineService
     @Transactional
     public ScacchieraGamestate nextGameState(Long id, MossaDTO dto) //prende come input ScacchieraGamestate,Move
     {
-        ScacchieraGamestate currentGameState = ScacchieraRepository.getReferenceById(id);
+        ScacchieraGamestate currentGameState = ScacchieraRepository.findById(id).get();
         // da = e4 dove e sta per la colonna e 4 per la riga
-        int colStart = ChessUtils.getColumnIndex(dto.getDa().charAt(1));
-        int rowStart = ChessUtils.getRowIndex(dto.getDa().charAt(0));
-        int colEnd = ChessUtils.getColumnIndex(dto.getA().charAt(1));
-        int rowEnd = ChessUtils.getRowIndex(dto.getA().charAt(0));
+        StringBuilder da = new StringBuilder();
+        StringBuilder a = new StringBuilder();
+            if (Character.isLetter(dto.getDa().charAt(0))) {
+                da.append(dto.getDa());
+                da.reverse();
+                a.append(dto.getA());
+                a.reverse();
+
+            }
+            else{
+                da.append(dto.getDa());
+                a.append(dto.getA());
+            }
+
+        int colStart = ChessUtils.getColumnIndex(da.charAt(1));
+        int rowStart = ChessUtils.getRowIndex(da.charAt(0));
+        int colEnd = ChessUtils.getColumnIndex(a.charAt(1));
+        int rowEnd = ChessUtils.getRowIndex(a.charAt(0));
+
+
 
         Mossa m = new Mossa();
         m.setTurno(dto.getNumero());
@@ -65,9 +81,9 @@ public class GameEngineService
         m.setEnd(currentGameState.getScacchiera()[rowEnd][colEnd]);
         m.setPezzo(Pezzo.getByCodice(dto.getPezzo().toUpperCase())); //PE,CA,AL,RE,RG,TO
         m.setCattura(dto.isCattura());
+        m.setPezzoPromozione(dto.getPezzoPromozione());
 
-        if(m.getStart().getColorePezzo()== currentGameState.getCurrentPlayer() && m.getPezzo().mossaValida(currentGameState,m))
-        {
+        if (m.getStart().getColorePezzo() == currentGameState.getCurrentPlayer() && m.getPezzo().mossaValida(currentGameState, m)) {
             ScacchieraGamestate nextGameState = currentGameState;
             //legare alla casella finale il pezzo in posizione start
             Casella[][] scacchiera = currentGameState.getScacchiera();
@@ -79,40 +95,45 @@ public class GameEngineService
             //settare a null casella di partenza
             scacchiera[rowStart][colStart].svuotaCasella();
             scacchiera[rowStart][colStart].setGiaMosso(true);
+            if (m.getPezzoPromozione() != null) {
+                scacchiera[rowEnd][colEnd].setPezzo(Pezzo.getByCodice(m.getPezzoPromozione().toUpperCase()));
+            }
             Casella reNuovoTurno;
-            if (currentGameState.getCurrentPlayer()==BIANCO)
-                reNuovoTurno = cercaRe(nextGameState,NERO);
+            if (currentGameState.getCurrentPlayer() == BIANCO)
+                reNuovoTurno = cercaRe(nextGameState, NERO);
             else
-                reNuovoTurno = cercaRe(nextGameState,BIANCO);
+                reNuovoTurno = cercaRe(nextGameState, BIANCO);
             //dopo l'aggiornamento andrà salvato in nextGamestate
-            if (!isChecked(currentGameState,cercaRe(currentGameState,currentGameState.getCurrentPlayer()))) {
+            if (!isChecked(currentGameState, cercaRe(currentGameState, currentGameState.getCurrentPlayer()))) {
                 nextGameState.setId(currentGameState.getId());
                 nextGameState.setScacchiera(scacchiera);
                 nextGameState.cambioTurno();
                 previousMoves.add(m);
                 nextGameState.setPreviousMoves(previousMoves);
-                if (isChecked(nextGameState,reNuovoTurno)) {
+                if (isChecked(nextGameState, reNuovoTurno)) {
                     reNuovoTurno.setGiaMosso(true);
                     nextGameState.setCheck(true);
-                    if (isCheckMated(nextGameState,reNuovoTurno))
+                    if (isCheckMated(nextGameState, reNuovoTurno))
                         nextGameState.setCheckMate(true);
                     else
                         nextGameState.setCheckMate(false);
-                }
-                else {
+                } else {
                     nextGameState.setCheck(false);
                     nextGameState.setCheckMate(false);
                 }
-                if (verificaStallo(nextGameState,scacchiera[rowEnd][colEnd]))
+                if (verificaStallo(nextGameState, scacchiera[rowEnd][colEnd]))
                     nextGameState.setStallo(false);
                 else
                     nextGameState.setStallo(true);
+
                 ScacchieraRepository.save(nextGameState);
+//                if(nextGameState.getCurrentPlayer()== NERO)
+//                    nextGameState(id,gameStateService.mossaAI());
                 return nextGameState;
             }
 
         }
-        throw new IllegalArgumentException("Mossa non valida: " + dto.getDa() + " → " + dto.getA());
+        throw new IllegalArgumentException("Mossa non valida: " + da + " → " + a);
     }
 
 

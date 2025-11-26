@@ -1,5 +1,8 @@
 package com.generation.checkmatebe.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.generation.checkmatebe.converters.FenConverter;
 import com.generation.checkmatebe.dtos.CasellaDTO;
 import com.generation.checkmatebe.dtos.MossaDTO;
 import com.generation.checkmatebe.dtos.PartitaDTO;
@@ -10,18 +13,18 @@ import com.generation.checkmatebe.model.enums.Pezzo;
 import com.generation.checkmatebe.model.repositories.PartitaRepo;
 import com.generation.checkmatebe.model.repositories.ScacchieraRepository;
 import com.generation.checkmatebe.model.repositories.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
+import com.google.genai.Client;
+import com.google.genai.types.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class GameStateService
 {
     @Autowired
-    private ScacchieraRepository repo;
+    private ScacchieraRepository scacchieraRepository;
 
     @Autowired
     private PartitaRepo pRepo;
@@ -66,7 +69,7 @@ public class GameStateService
         gameState.setChessboard(pRepo.getReferenceById(id));
         Partita p = pRepo.getReferenceById(id);
         p.setGamestate(gameState);
-        repo.save(gameState);
+        scacchieraRepository.save(gameState);
         pRepo.save(p);
         return convertToDtoScacchiera(gameState);
     }
@@ -112,7 +115,7 @@ public class GameStateService
     }
 
     public PartitaDTO fineGamestate(User user, Long id) {
-        Optional<ScacchieraGamestate> gamestate = repo.findById(id);
+        Optional<ScacchieraGamestate> gamestate = scacchieraRepository.findById(id);
         Partita game;
         if (gamestate.isPresent()) {
             game = user.getPartite().stream().filter(partita -> partita == pRepo.findPartitaById(gamestate.get().getChessboard().getId())).toList().get(0);
@@ -141,7 +144,7 @@ public class GameStateService
         dto.setGiocatoreBianco(game.getGiocatoreBianco());
         dto.setGiocatoreNero(game.getGiocatoreNero());
         dto.setRisultato(game.getRisultato());
-        game.setGamestate(repo.findByChessboard_Id(game.getId()).get());
+        game.setGamestate(scacchieraRepository.findByChessboard_Id(game.getId()).get());
         dto.setMosse(convertiMosseDto(game.getGamestate().getPreviousMoves()));
 //        dto.setStatoFinaleFEN();
         return dto;
@@ -158,6 +161,69 @@ public class GameStateService
             lista.add(dto);
         }
         return lista;
+    }
+
+    public MossaDTO mossaAI(Long id) {
+        Casella[][] scacchiera = scacchieraRepository.findById(id).get().getScacchiera();
+        FenConverter converter= new FenConverter();
+        String scacchieraFEN = converter.boardToFen(scacchiera,Color.BIANCO);
+
+        // 1. Inizializza il Client con la tua API Key
+        Client client = Client.builder()
+                .apiKey("AIzaSyDQzXL74S0AcDK8R-fiRYsMulHIZyFuKFM")
+                .build();
+
+
+        // 2. Definisci lo Schema JSON corrispondente alla tua MossaDTO
+        String mossaJsonSchema = """
+            {
+              "type": "object",
+              "properties": {
+                "numero": { "type": "integer" },
+                "da": { "type": "string" },
+                "a": { "type": "string" },
+                "pezzo": {
+                  "type": "string",
+                  "enum": ["AL", "PE", "RG", "RE", "TO", "CA"]
+                },
+                "cattura": { "type": "boolean" },
+                "arrocco": { "type": "boolean" },
+                "promozione": { "type": "boolean" }
+              },
+              "required": ["numero", "da", "a", "pezzo", "cattura", "arrocco", "promozione"]
+            }
+            """;
+
+        Schema mossaSchema = Schema.fromJson(mossaJsonSchema);
+
+
+        // 3. Istruzione di sistema
+        Content systemInstruction = Content.fromParts(
+                Part.fromText("Sei un motore di scacchi. La tua unica risposta deve essere un oggetto JSON valido che descrive la mossa del nero, nel formato DTO specificato e il FEN è: " + scacchieraFEN )
+        );
+
+        // 4. Configurazione della richiesta
+        GenerateContentConfig config = GenerateContentConfig.builder()
+                .systemInstruction(systemInstruction)
+                .responseMimeType("application/json")
+                .responseSchema(mossaSchema)
+                .candidateCount(1)
+                .build();
+
+        GenerateContentResponse response =
+                client.models.generateContent("gemini-2.5-flash", "prossima mossa? in meno di 2 secondi", config);
+
+
+        // 7. Stampa la risposta JSON
+        System.out.println("Risposta JSON: " + response.text());
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            MossaDTO mossaDTO = mapper.readValue(response.text(), MossaDTO.class);
+
+            return mossaDTO;
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 //    private int numero;

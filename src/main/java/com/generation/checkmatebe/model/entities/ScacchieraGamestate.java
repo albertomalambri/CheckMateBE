@@ -34,19 +34,12 @@ public class ScacchieraGamestate implements Serializable
     private boolean isCheckMate; //controllo checkMate
     private boolean isStallo;
     //private boolean live; //partita live o finita
-
     @OneToOne(fetch = FetchType.EAGER)
     private Partita chessboard;
-
-
     public void cambioTurno() {
         if (this.currentPlayer==Color.BIANCO)
             this.currentPlayer=Color.NERO;
         else
             this.currentPlayer=Color.BIANCO;
     }
-
-
-
-
 }

@@ -6,17 +6,21 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.generation.checkmatebe.model.enums.Color;
 import com.generation.checkmatebe.model.enums.Pezzo;
 import com.generation.checkmatebe.utilities.ChessUtils;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Casella implements Serializable
 {
-    private final int row;     // da 1 a 8
-    private final int column;
+    private int row;     // da 1 a 8
+    private int column;
     // da 1 a 8 (oppure 'a'–'h' se vuoi usare lettere)
     private String nomeCasella; //es e4
 

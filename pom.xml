@@ -3,6 +3,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <repositories>
         <repository>
+            <id>google-apis</id>
+            <name>Google APIs</name>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
+        <repository>
             <id>central</id>
             <url>https://repo.maven.apache.org/maven2</url>
         </repository>
@@ -83,6 +88,11 @@
             <artifactId>commons-codec</artifactId>
             <version>1.15</version> <!-- You can check for newer versions -->
         </dependency>
+            <dependency>
+                <groupId>com.google.genai</groupId>
+                <artifactId>google-genai</artifactId>
+                <version>1.28.0</version>
+            </dependency>
     </dependencies>
 
     <build>

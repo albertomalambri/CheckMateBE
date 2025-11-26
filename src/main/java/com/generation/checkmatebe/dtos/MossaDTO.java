@@ -19,5 +19,6 @@ public class MossaDTO
     private boolean cattura;
     private boolean arrocco;
     private boolean promozione;
+    private String pezzoPromozione;
 }
 

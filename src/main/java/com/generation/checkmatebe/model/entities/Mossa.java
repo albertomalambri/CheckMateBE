@@ -19,7 +19,5 @@ public class Mossa implements Serializable
     private boolean cattura;
     private boolean arrocco;
     private boolean promozione;
-
-
-
+    private String pezzoPromozione;
 }
