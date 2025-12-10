@@ -1,36 +1,41 @@
 package com.generation.checkmatebe.model.entities;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.generation.checkmatebe.model.enums.Color;
 import com.generation.checkmatebe.model.enums.Pezzo;
 import com.generation.checkmatebe.utilities.ChessUtils;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Casella implements Serializable
 {
-    private final int row;     // da 1 a 8
-    private final int column;
+    private int row;     // da 1 a 8
+    private int column;
     // da 1 a 8 (oppure 'a'–'h' se vuoi usare lettere)
     private String nomeCasella; //es e4
 
     @JsonIgnore
     private ScacchieraGamestate gameState;
 
-    @JsonIgnore
+//    @JsonIgnore
     private Pezzo pezzo;
     private Color colorePezzo;
 
+    private boolean giaMosso = false;
 
 
-
-    public Casella(int row, int column)
+    @JsonCreator
+    public Casella(@JsonProperty("row") int row,@JsonProperty("column") int column)
     {
         this.row = row;
         this.column = column;
@@ -40,6 +45,7 @@ public class Casella implements Serializable
     public void svuotaCasella()
     {
         this.pezzo = null;
+        this.setColorePezzo(null);
     }
 
 }

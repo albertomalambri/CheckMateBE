@@ -18,7 +18,5 @@ public class CasellaDTO
     private Color colorePezzo;
     private Pezzo pezzo;
     private String nomeCasella;
-
-
 }
 

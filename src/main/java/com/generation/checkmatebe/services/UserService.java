@@ -1,9 +1,11 @@
 package com.generation.checkmatebe.services;
 
 import com.generation.checkmatebe.dtos.LoginDTO;
+import com.generation.checkmatebe.dtos.PartitaDTO;
 import com.generation.checkmatebe.dtos.RegisterDTO;
 import com.generation.checkmatebe.dtos.UserOutputDTO;
 import com.generation.checkmatebe.exceptions.InvalidCredentials;
+import com.generation.checkmatebe.model.entities.Partita;
 import com.generation.checkmatebe.model.entities.User;
 import com.generation.checkmatebe.model.enums.Rank;
 import com.generation.checkmatebe.model.enums.Role;
@@ -12,7 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.apache.commons.codec.digest.DigestUtils;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -22,24 +26,37 @@ public class UserService
     @Autowired
     private UserRepository repo;
 
-    public String register(RegisterDTO RegisterDTO)
-    {
+    @Autowired
+    private GameStateService srepo;
 
-
-        if(!RegisterDTO.getPassword().matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$"))
+    public String register(RegisterDTO RegisterDTO) {
+        //Controllo della password sul DTO
+        String password = RegisterDTO.getPassword();
+        if (!password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$")) {
             throw new InvalidCredentials("Password not valid");
+        }
 
+        if (repo.findByUsername(RegisterDTO.getUsername()) != null)
+            throw new InvalidCredentials("Username not valid");
+        //Creazione dell’utente
         User user = new User();
         user.setUsername(RegisterDTO.getUsername());
+        user.setEmail(RegisterDTO.getEmail());
+
+        //Hash della password prima di salvarla
         String hash = DigestUtils.md5Hex(RegisterDTO.getPassword());
         user.setPassword(hash);
-        user.setEmail(RegisterDTO.getEmail()); //
-        user.setRole(Role.STANDARD);
 
-        System.out.println(hash);
-        //genero un token in automatico
+        //Valori per le colonne NOT NULL
+        user.setElo(1000);                   // solo qui
+        user.setRank(Rank.fromRating(1000)); // solo qui
+        user.setPartiteGiocate(0);
+        user.setWinRate(0);
+        user.setRole(Role.USER);
         user.setToken(UUID.randomUUID().toString());
+        repo.save(user);
 
+        //Salvataggio nel database
         repo.save(user);
 
         return user.getToken();
@@ -72,12 +89,19 @@ public class UserService
         Rank rank = Rank.fromRating(u.getElo());
 
         UserOutputDTO dto = new UserOutputDTO();
+        dto.setId(u.getId());
         dto.setUsername(u.getUsername());
         dto.setEmail(u.getEmail());
-        dto.setRole(u.getRole());
-        dto.setElo(u.getElo());
         dto.setRank(rank);
+        dto.setElo(u.getElo());
+        dto.setPartiteGiocate(u.getPartiteGiocate());
+        dto.setWinRate(u.getWinRate());
+        dto.setRole(u.getRole());
+        Set<PartitaDTO> pdto = new HashSet<>();
+        for (Partita p : u.getPartite()) {
+            pdto.add(srepo.convertPartitaToDto(p));
+        }
+        dto.setPartite(pdto);
         return dto;
     }
 }
-

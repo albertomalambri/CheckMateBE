@@ -1,7 +1,7 @@
 package com.generation.checkmatebe.model.entities;
 
-import com.generation.checkmatebe.model.converters.CasellaMatrixConverter;
-import com.generation.checkmatebe.model.converters.MossaListConverter;
+import com.generation.checkmatebe.converters.CasellaMatrixConverter;
+import com.generation.checkmatebe.converters.MossaListConverter;
 import com.generation.checkmatebe.model.enums.Color;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -21,7 +21,7 @@ public class ScacchieraGamestate implements Serializable
 
     @Convert(converter = CasellaMatrixConverter.class)
     @Lob
-    private Casella[][] scacchiera= new Casella[8][8];
+    private Casella[][] scacchiera = new Casella[8][8];
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -32,24 +32,14 @@ public class ScacchieraGamestate implements Serializable
     private LinkedList<Mossa> previousMoves; // linked list per tenerle in ordine
     private boolean isCheck; //controllo Check
     private boolean isCheckMate; //controllo checkMate
+    private boolean isStallo;
     //private boolean live; //partita live o finita
-
-
+    @OneToOne(fetch = FetchType.EAGER)
+    private Partita chessboard;
     public void cambioTurno() {
         if (this.currentPlayer==Color.BIANCO)
             this.currentPlayer=Color.NERO;
         else
             this.currentPlayer=Color.BIANCO;
     }
-
-
-
-//    public void refreshPosizioni() {
-//        Casella[][] posizioni = new Casella[8][8];
-//        for (int i = 0; i < 7; i++) {
-//            for (int j = 0; j < 7; j++) {
-//                posizioni[i][j]= ;
-//        }
-//        this.scacchiera = posizioni;
-//    }
 }

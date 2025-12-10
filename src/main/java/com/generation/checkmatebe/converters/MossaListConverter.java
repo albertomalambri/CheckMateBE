@@ -1,4 +1,4 @@
-package com.generation.checkmatebe.model.converters;
+package com.generation.checkmatebe.converters;
 
 
 import com.generation.checkmatebe.model.entities.Mossa;

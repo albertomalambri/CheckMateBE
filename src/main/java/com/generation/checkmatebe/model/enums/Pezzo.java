@@ -7,7 +7,7 @@ import com.generation.checkmatebe.utilities.ChessUtils;
 
 import java.util.Arrays;
 
-//arrocco, en passant, promozione(lato front, back forse da cambiare inGame)
+//arrocco, en passant,is checked/checkMate promozione(lato front, back forse da cambiare inGame)
 
 public enum Pezzo {
     PEDONE(1, "PE") {
@@ -20,27 +20,56 @@ public enum Pezzo {
             int colEnd = m.getEnd().getColumn();
             int rowEnd = m.getEnd().getRow();
             //controllo se bianco è stato mosso
-            if ((rowStart == 6 && scacchiera[rowStart - 1][colStart] == null) && m.getStart().getColorePezzo() == Color.BIANCO)
+            if ((rowStart == 6 && colStart==colEnd && scacchiera[rowStart - 1][colStart].getPezzo() == null) && scacchiera[rowStart - 2][colStart].getPezzo() == null && m.getStart().getColorePezzo() == Color.BIANCO)
                 return ((m.getEnd().getPezzo() == null) && (colEnd == colStart) && (rowEnd == rowStart - 2 || rowEnd == rowStart - 1));
 
-            else if ((rowStart == 1 && scacchiera[rowStart + 1][colStart] == null) && m.getStart().getColorePezzo() == Color.NERO)
+            else if ((rowStart == 1 && colStart==colEnd && scacchiera[rowStart + 1][colStart].getPezzo() == null) && scacchiera[rowStart + 2][colStart].getPezzo() == null && m.getStart().getColorePezzo() == Color.NERO)
                 return ((m.getEnd().getPezzo() == null) && (colEnd == colStart) && (rowEnd == rowStart + 2 || rowEnd == rowStart + 1));
 
 
             //METODO CanEAT
-            //caso pedone bianco
+            //caso pedone bianco - 3 per enpassant
             else if (m.getStart().getColorePezzo() == Color.BIANCO) {
                 if (colEnd == colStart - 1 && rowEnd == rowStart - 1 || colEnd == colStart + 1 && rowEnd == rowStart - 1) {
-                    return (m.getEnd().getColorePezzo() != m.getStart().getColorePezzo());
+                    if(m.getEnd().getPezzo()==null) {
+                        if ( rowStart==3
+                                && (scacchiera[rowStart][colStart+1].getPezzo()!=null
+                                && scacchiera[rowStart][colStart+1].getPezzo().getCodice().equals("PE")
+                                && scacchiera[rowStart][colStart+1].getColorePezzo()==Color.NERO)
+                                || (scacchiera[rowStart][colStart-1].getPezzo()!=null
+                                && scacchiera[rowStart][colStart-1].getPezzo().getCodice().equals("PE")
+                                && scacchiera[rowStart][colStart-1].getColorePezzo()==Color.NERO)
+                                && gameState.getPreviousMoves().getLast().getEnd().getRow()==3
+                                && gameState.getPreviousMoves().getLast().getStart().getRow()==1) {
+                            scacchiera[rowStart][colEnd].svuotaCasella();
+                            return true;
+                        }
+                    }
+                    else
+                        return (m.getEnd().getColorePezzo() != m.getStart().getColorePezzo());
                 }
                 //avanzamento base pedone
                 return colEnd == colStart && rowEnd == rowStart - 1;
-
             }
-            //caso pedone nero
+            //caso pedone nero - 4 per enpassant
             else if (m.getStart().getColorePezzo() == Color.NERO) {
                 if (colEnd == colStart - 1 && rowEnd == rowStart + 1 || colEnd == colStart + 1 && rowEnd == rowStart + 1) {
-                    return m.getEnd().getColorePezzo() != m.getStart().getColorePezzo();
+                    if(m.getEnd().getPezzo()==null) {
+                        if (rowStart==4
+                                && (scacchiera[rowStart][colStart+1].getPezzo()!=null
+                                && scacchiera[rowStart][colStart+1].getPezzo().getCodice().equals("PE")
+                                && scacchiera[rowStart][colStart+1].getColorePezzo()==Color.BIANCO)
+                                || (scacchiera[rowStart][colStart-1].getPezzo()!=null
+                                && scacchiera[rowStart][colStart-1].getPezzo().getCodice().equals("PE")
+                                && scacchiera[rowStart][colStart-1].getColorePezzo()==Color.BIANCO)
+                                && gameState.getPreviousMoves().getLast().getEnd().getRow()==4
+                                && gameState.getPreviousMoves().getLast().getStart().getRow()==6) {
+                            scacchiera[rowStart][colEnd].svuotaCasella();
+                            return true;
+                        }
+                    }
+                    else
+                        return m.getEnd().getColorePezzo() != m.getStart().getColorePezzo();
                 }
                 //avanzamento base pedone
                 return colEnd == colStart && rowEnd == rowStart + 1;
@@ -119,6 +148,14 @@ public enum Pezzo {
                 int rowStart = m.getStart().getRow();
                 int colEnd = m.getEnd().getColumn();
                 int rowEnd = m.getEnd().getRow();
+                Casella[][] scacchiera = gameState.getScacchiera();
+
+                if (!m.getStart().isGiaMosso()) {
+                    if (m.getStart().getColorePezzo()==Color.BIANCO && ((isStraightPathClear(gameState, rowStart,colStart,rowEnd,colEnd) && !scacchiera[7][4].isGiaMosso())))
+                        return true;
+                    if (m.getStart().getColorePezzo()==Color.NERO && ((isStraightPathClear(gameState, rowStart,colStart,rowEnd,colEnd) && !scacchiera[0][4].isGiaMosso())))
+                        return true;
+                }
 
                 return (rowStart==rowEnd || colStart==colEnd) &&
                         isStraightPathClear(gameState, rowStart, colStart, rowEnd, colEnd) &&
@@ -136,15 +173,20 @@ public enum Pezzo {
                 int rowStart = m.getStart().getRow();
                 int colEnd = m.getEnd().getColumn();
                 int rowEnd = m.getEnd().getRow();
+//                boolean straight = isStraightPathClear(gameState, rowStart, colStart, rowEnd, colEnd);
+//                boolean diagonal = isDiagonalPathClear(gameState, rowStart, colStart, rowEnd, colEnd);
 
-                
-                return isStraightPathClear(gameState, rowStart, colStart, rowEnd, colEnd) &&
-                        isDiagonalPathClear(gameState, rowStart, colStart, rowEnd, colEnd) &&
-                        m.getEnd().getColorePezzo() != m.getStart().getColorePezzo();
+                if (m.getEnd().getPezzo()==null)
+                    return (isStraightPathClear(gameState, rowStart, colStart, rowEnd, colEnd) ||
+                        isDiagonalPathClear(gameState, rowStart, colStart, rowEnd, colEnd));
+                else
+                    return (isStraightPathClear(gameState, rowStart, colStart, rowEnd, colEnd) ||
+                            isDiagonalPathClear(gameState, rowStart, colStart, rowEnd, colEnd)) &&
+                            m.getEnd().getColorePezzo() != m.getStart().getColorePezzo();
             }
         },
 
-        RE(0,"RE") {
+        RE(0, "RE") {
             @Override
             boolean mossaValidaSpecifica(ScacchieraGamestate gameState, Mossa m) {
                 int colStart = m.getStart().getColumn();
@@ -153,34 +195,52 @@ public enum Pezzo {
                 int rowEnd = m.getEnd().getRow();
                 Casella[][] scacchiera = gameState.getScacchiera();
 
-                int[] dirCheck = {rowEnd - rowStart, colEnd - colStart};  // {1,-1}
-                //solo controlli specifici per re
-                int[][] direzioni = {
-                        {-1, -1}, //alto sinistra
-                        {-1, 0}, //alto
-                        {-1, 1}, //alto destra
-                        {0, 1}, //destra
-                        {1, 1}, //basso destra
-                        {1, 0}, //basso
-                        {1, -1}, //basso sinistra
-                        {0, -1} //sinistra
-                };
+                int dirCol = Math.abs(colEnd - colStart);
+                int dirRow = Math.abs(rowEnd - rowStart);
 
-                //controllo per vedere se dove va il re è occupato da un pezzo alleato
+                boolean movimentoValido = (dirCol <= 1 && dirRow <= 1) && !(dirCol == 0 && dirRow == 0);
+                boolean destinazioneLiberaOAvversaria = m.getEnd().getColorePezzo() != m.getStart().getColorePezzo();
 
-
-                for (int[] dir : direzioni)
-                {
-                    if (Arrays.equals(dirCheck, dir)) {
-                        if (m.getEnd().getPezzo() != null &&
-                                m.getEnd().getColorePezzo() == m.getStart().getColorePezzo())
-                        {
-                            return false; //❌ non può muoversi su pezzo alleato
+                if (!m.getStart().isGiaMosso()) {
+                    if (m.getStart().getColorePezzo()==Color.BIANCO && ((isStraightPathClear(gameState, rowStart,colStart,rowEnd,colEnd) && !scacchiera[7][7].isGiaMosso()) ||
+                            (isStraightPathClear(gameState, rowStart,colStart,rowEnd,colEnd) && !scacchiera[7][0].isGiaMosso())))
+                        if (m.getEnd().getColumn()==6) {
+                            gameState.getScacchiera()[7][5].setPezzo(gameState.getScacchiera()[7][7].getPezzo());
+                            gameState.getScacchiera()[7][5].setColorePezzo(gameState.getScacchiera()[7][7].getColorePezzo());
+                            gameState.getScacchiera()[7][5].setGiaMosso(true);
+                            gameState.getScacchiera()[7][7].svuotaCasella();
+                            gameState.getScacchiera()[7][7].setGiaMosso(true);
+                            return true;
+                        } else if (m.getEnd().getColumn()==2) {
+                            gameState.getScacchiera()[7][3].setPezzo(gameState.getScacchiera()[7][0].getPezzo());
+                            gameState.getScacchiera()[7][3].setColorePezzo(gameState.getScacchiera()[7][0].getColorePezzo());
+                            gameState.getScacchiera()[7][3].setGiaMosso(true);
+                            gameState.getScacchiera()[7][0].svuotaCasella();
+                            gameState.getScacchiera()[7][0].setGiaMosso(true);
+                            return true;
                         }
-                        return true; //✅ direzione valida e casella libera o con nemico
-                    }
+
+                    if (m.getStart().getColorePezzo()==Color.NERO && ((isStraightPathClear(gameState, rowStart,colStart,rowEnd,colEnd) && !scacchiera[0][7].isGiaMosso()) ||
+                            (isStraightPathClear(gameState, rowStart,colStart,rowEnd,colEnd) && !scacchiera[0][0].isGiaMosso())))
+                        if (m.getEnd().getColumn()==6) {
+                            gameState.getScacchiera()[0][5].setPezzo(gameState.getScacchiera()[0][7].getPezzo());
+                            gameState.getScacchiera()[0][5].setColorePezzo(gameState.getScacchiera()[0][7].getColorePezzo());
+                            gameState.getScacchiera()[0][5].setGiaMosso(true);
+                            gameState.getScacchiera()[0][7].svuotaCasella();
+                            gameState.getScacchiera()[0][7].setGiaMosso(true);
+                            return true;
+                        } else if (m.getEnd().getColumn()==2) {
+                            gameState.getScacchiera()[0][3].setPezzo(gameState.getScacchiera()[0][0].getPezzo());
+                            gameState.getScacchiera()[0][3].setColorePezzo(gameState.getScacchiera()[0][0].getColorePezzo());
+                            gameState.getScacchiera()[0][3].setGiaMosso(true);
+                            gameState.getScacchiera()[0][0].svuotaCasella();
+                            gameState.getScacchiera()[0][0].setGiaMosso(true);
+                            return true;
+                        }
+
                 }
-                return false; //❌ direzione non valida
+
+                return movimentoValido && destinazioneLiberaOAvversaria;
             }
         };
 
@@ -219,7 +279,9 @@ public enum Pezzo {
                 return false;
             //non finisce dove c'è altro pezzo stesso colore
             //il colore consiglio di salvarlo dentro oggetto Posizione//es proprietà posizione: enums.Pezzo - ColorePezzo - Riga - Colonna
-            return casellaEnd.getColorePezzo() != m.getStart().getColorePezzo();
+            if (casellaEnd.getPezzo()!=null)
+                return casellaEnd.getColorePezzo() != m.getStart().getColorePezzo();
+            return true;
         }
 
         //metodo astratto che viene sovrascritto da ogni pezzo
@@ -248,6 +310,9 @@ public enum Pezzo {
         return true;
     }
     boolean isDiagonalPathClear(ScacchieraGamestate gameState, int rowStart, int colStart, int rowEnd, int colEnd) {
+        if (Math.abs(rowEnd - rowStart) != Math.abs(colEnd - colStart)) {
+            return false;
+        }
         int rowStep = (rowEnd > rowStart) ? 1 : -1;
         int colStep = (colEnd > colStart) ? 1 : -1;
 
