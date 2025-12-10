@@ -23,6 +23,7 @@
     <groupId>com.generation</groupId>
     <artifactId>CheckMateBE</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
     <name>CheckMateBE</name>
     <description>CheckMateBE</description>
     <url/>
